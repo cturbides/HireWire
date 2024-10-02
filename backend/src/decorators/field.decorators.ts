@@ -22,7 +22,9 @@ import {
   Min,
   MinLength,
   NotEquals,
+  registerDecorator,
   ValidateNested,
+  ValidationOptions,
 } from 'class-validator';
 
 import { supportedLanguageCount } from '../constants';
@@ -42,6 +44,7 @@ import {
   IsTmpKey as IsTemporaryKey,
   IsUndefinable,
 } from './validator.decorators';
+import { IsValidDocumentIdConstraint } from '../constants/document-id.validator';
 
 type RequireField<T, K extends keyof T> = T & Required<Pick<T, K>>;
 
@@ -163,6 +166,30 @@ export function StringFieldOptional(
   return applyDecorators(
     IsUndefinable(),
     StringField({ required: false, ...options }),
+  );
+}
+
+export function DocumentIdField(options: Omit<ApiPropertyOptions, 'type'> = {}): PropertyDecorator {
+  return function (target: Object, propertyName: string | symbol): void {
+    // Swagger decorator
+    ApiProperty({ type: String, ...options })(target, propertyName);
+
+    // Register the custom validator
+    registerDecorator({
+      target: target.constructor,
+      propertyName: propertyName as string,
+      options: options as ValidationOptions,
+      constraints: [],
+      validator: IsValidDocumentIdConstraint,
+    });
+  };
+}
+
+
+export function DocumentIdFieldOptional(options: Omit<ApiPropertyOptions, 'type' | 'required'> = {}): PropertyDecorator {
+  return applyDecorators(
+    IsUndefinable(),
+    DocumentIdField({ required: false, ...options })
   );
 }
 

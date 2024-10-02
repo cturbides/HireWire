@@ -3,15 +3,14 @@ import { Global, Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 
 import { ApiConfigService } from './services/api-config.service';
-import { AwsS3Service } from './services/aws-s3.service';
 import { GeneratorService } from './services/generator.service';
 import { TranslationService } from './services/translation.service';
 import { ValidatorService } from './services/validator.service';
+import { EntitySubscribersModule } from '../entity-subscribers/entity-subscribers.module';
 
 const providers: Provider[] = [
   ApiConfigService,
   ValidatorService,
-  AwsS3Service,
   GeneratorService,
   TranslationService,
 ];
@@ -19,7 +18,7 @@ const providers: Provider[] = [
 @Global()
 @Module({
   providers,
-  imports: [CqrsModule],
+  imports: [CqrsModule, EntitySubscribersModule],
   exports: [...providers, CqrsModule],
 })
 export class SharedModule {}

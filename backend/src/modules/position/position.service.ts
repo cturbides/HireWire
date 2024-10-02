@@ -37,7 +37,7 @@ export class PositionService {
     const queryBuilder = this.positionRepository
       .createQueryBuilder('position')
       .where('position.available = :available', { available: true })
-      .where('position.state = :state', { state: true });
+      .andWhere('position.state = :state', { state: true });
 
     const [items, pageMetaDto] = await queryBuilder.paginate(positionPageOptionsDto);
 
@@ -129,6 +129,7 @@ export class PositionService {
     await this.positionRepository.save({
       id: positionEntity.id,
       state: false,
+      available: true,
     })
   }
 }

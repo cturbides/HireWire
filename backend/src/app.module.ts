@@ -24,6 +24,8 @@ import { SharedModule } from './shared/shared.module';
 import { SkillModule } from './modules/skill/skill.module';
 import { LanguageModule } from './modules/language/language.module';
 import { PositionModule } from './modules/position/position.module';
+import { EmployeeModule } from './modules/employee/employee.module';
+import { EntitySubscribersModule } from './entity-subscribers/entity-subscribers.module';
 
 @Module({
   imports: [
@@ -32,6 +34,7 @@ import { PositionModule } from './modules/position/position.module';
     SkillModule,
     LanguageModule,
     PositionModule,
+    EmployeeModule,
     ClsModule.forRoot({
       global: true,
       middleware: {
@@ -81,7 +84,8 @@ import { PositionModule } from './modules/position/position.module';
       inject: [ApiConfigService],
     }),
     HealthCheckerModule,
+    EntitySubscribersModule,
   ],
   providers: [],
 })
-export class AppModule {}
+export class AppModule { }

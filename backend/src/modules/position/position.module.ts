@@ -13,5 +13,6 @@ const handlers = [CreatePositionHandler, GetPositionHandler];
   imports: [TypeOrmModule.forFeature([PositionEntity])],
   providers: [PositionService, ...handlers],
   controllers: [PositionController],
+  exports: [PositionService]
 })
 export class PositionModule {}
