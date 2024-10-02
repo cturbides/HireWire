@@ -23,6 +23,7 @@ import { ApiConfigService } from './shared/services/api-config.service';
 import { SharedModule } from './shared/shared.module';
 import { SkillModule } from './modules/skill/skill.module';
 import { LanguageModule } from './modules/language/language.module';
+import { PositionModule } from './modules/position/position.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { LanguageModule } from './modules/language/language.module';
     UserModule,
     SkillModule,
     LanguageModule,
+    PositionModule,
     ClsModule.forRoot({
       global: true,
       middleware: {
