@@ -25,6 +25,7 @@ import { SkillModule } from './modules/skill/skill.module';
 import { LanguageModule } from './modules/language/language.module';
 import { PositionModule } from './modules/position/position.module';
 import { EmployeeModule } from './modules/employee/employee.module';
+import { ApplicantModule } from './modules/applicant/applicant.module';
 import { EntitySubscribersModule } from './entity-subscribers/entity-subscribers.module';
 
 @Module({
@@ -35,6 +36,7 @@ import { EntitySubscribersModule } from './entity-subscribers/entity-subscribers
     LanguageModule,
     PositionModule,
     EmployeeModule,
+    ApplicantModule,
     ClsModule.forRoot({
       global: true,
       middleware: {
