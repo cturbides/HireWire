@@ -21,13 +21,15 @@ import { HealthCheckerModule } from './modules/health-checker/health-checker.mod
 import { UserModule } from './modules/user/user.module';
 import { ApiConfigService } from './shared/services/api-config.service';
 import { SharedModule } from './shared/shared.module';
-import { SkillModule } from './modules/skill/skill.module'
+import { SkillModule } from './modules/skill/skill.module';
+import { LanguageModule } from './modules/language/language.module';
 
 @Module({
   imports: [
     AuthModule,
     UserModule,
     SkillModule,
+    LanguageModule,
     ClsModule.forRoot({
       global: true,
       middleware: {
