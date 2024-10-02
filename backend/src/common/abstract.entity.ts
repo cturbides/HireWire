@@ -25,6 +25,9 @@ export abstract class AbstractEntity<
   })
   updatedAt!: Date;
 
+  @Column({ default: true })
+  state!: boolean;
+
   translations?: AbstractTranslationEntity[];
 
   toDto(options?: O): DTO {

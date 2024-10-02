@@ -1,8 +1,8 @@
 {
-  "name": "awesome-nestjs-boilerplate",
+  "name": "hirewire-backend",
   "version": "10.0.0",
-  "description": "Awesome NestJS Boilerplate, Typescript, Postgres, TypeORM",
-  "author": "Narek Hakobyan <narek.hakobyan.07@gmail.com>",
+  "description": "HireWire Backend",
+  "author": "Carlos Sánchez <c.sanchez93@unapec.edu.do>",
   "private": true,
   "license": "MIT",
   "scripts": {

@@ -2,6 +2,7 @@ import {
   DateField,
   DYNAMIC_TRANSLATION_DECORATOR_KEY,
   UUIDField,
+  BooleanField,
 } from '../../decorators';
 import { ContextProvider } from '../../providers';
 import type { AbstractEntity } from '../abstract.entity';
@@ -9,6 +10,9 @@ import type { AbstractEntity } from '../abstract.entity';
 export class AbstractDto {
   @UUIDField()
   id!: Uuid;
+
+  @BooleanField()
+  state!: boolean;
 
   @DateField()
   createdAt!: Date;
@@ -21,6 +25,7 @@ export class AbstractDto {
   constructor(entity: AbstractEntity, options?: { excludeFields?: boolean }) {
     if (!options?.excludeFields) {
       this.id = entity.id;
+      this.state = entity.state;
       this.createdAt = entity.createdAt;
       this.updatedAt = entity.updatedAt;
     }
