@@ -1,19 +1,26 @@
 import type { ICommand, IQueryHandler } from '@nestjs/cqrs';
 import { QueryHandler } from '@nestjs/cqrs';
 
-import { SkillRepository } from '../skill.repository';
+import { InjectRepository } from '@nestjs/typeorm'
+import { Repository } from 'typeorm';
+import { SkillEntity } from '../skill.entity';
 
 export class GetSkillQuery implements ICommand {
-  constructor(public readonly skillId: Uuid) {}
+  constructor(public readonly skillId: Uuid) { }
 }
 
 @QueryHandler(GetSkillQuery)
 export class GetSkillHandler implements IQueryHandler<GetSkillQuery> {
-  constructor(private skillRepository: SkillRepository) {}
+  constructor(
+    @InjectRepository(SkillEntity)
+    private skillRepository: Repository<SkillEntity>
+  ) { }
 
   async execute(query: GetSkillQuery) {
     return this.skillRepository.find({
-      id: query.skillId,
+      where: {
+        id: query.skillId
+      }
     });
   }
 }

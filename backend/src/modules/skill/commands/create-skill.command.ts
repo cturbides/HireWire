@@ -1,53 +1,29 @@
 import type { ICommand, ICommandHandler } from '@nestjs/cqrs';
 import { CommandHandler } from '@nestjs/cqrs';
-import { find } from 'lodash';
+import { InjectRepository } from '@nestjs/typeorm'
+import { Repository } from 'typeorm';
 
 import type { CreateSkillDto } from '../dtos/create-skill.dto';
-import type { SkillEntity } from '../skill.entity';
-import { SkillRepository } from '../skill.repository';
-import type { SkillTranslationEntity } from '../skill-translation.entity';
-import { SkillTranslationRepository } from '../skill-translation.repository';
+import { SkillEntity } from '../skill.entity';
 
 export class CreateSkillCommand implements ICommand {
   constructor(
     public readonly createSkillDto: CreateSkillDto,
-  ) {}
+  ) { }
 }
 
 @CommandHandler(CreateSkillCommand)
 export class CreateSkillHandler
-  implements ICommandHandler<CreateSkillCommand, SkillEntity>
-{
+  implements ICommandHandler<CreateSkillCommand, SkillEntity> {
   constructor(
-    private skillRepository: SkillRepository,
-    private skillTranslationRepository: SkillTranslationRepository,
-  ) {}
+    @InjectRepository(SkillEntity)
+    private skillRepository: Repository<SkillEntity>,
+  ) { }
 
   async execute(command: CreateSkillCommand) {
-    const { createSkillDto } = command;
-    const skillEntity = this.skillRepository.create();
-    const translations: SkillTranslationEntity[] = [];
+    const skillEntity = this.skillRepository.create({ description: command.createSkillDto.description });
 
     await this.skillRepository.save(skillEntity);
-
-    // FIXME: Create generic function for translation creation
-    for (const createTranslationDto of createSkillDto.title) {
-      const languageCode = createTranslationDto.languageCode;
-      const translationEntity = this.skillTranslationRepository.create({
-        skillId: skillEntity.id,
-        languageCode,
-        title: createTranslationDto.text,
-        description: find(createSkillDto.description, {
-          languageCode,
-        })!.text,
-      });
-
-      translations.push(translationEntity);
-    }
-
-    await this.skillTranslationRepository.save(translations);
-
-    skillEntity.translations = translations;
 
     return skillEntity;
   }

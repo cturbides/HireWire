@@ -12,10 +12,15 @@ export class SkillDto extends AbstractDto {
   @ApiPropertyOptional()
   state: boolean;
 
+  @BooleanFieldOptional()
+  @ApiPropertyOptional()
+  official!: boolean | null;
+
   constructor(entityName: SkillEntity) {
     super(entityName);
 
     this.description = entityName.description;
     this.state = entityName.state;
+    this.official = entityName.official;
   }
 }

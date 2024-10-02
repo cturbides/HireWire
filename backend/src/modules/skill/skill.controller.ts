@@ -8,6 +8,7 @@ import {
   Post,
   Put,
   Query,
+  Logger
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
@@ -18,10 +19,13 @@ import type { SkillDto } from './dtos/skill.dto';
 import { SkillPageOptionsDto } from './dtos/skill-page-options.dto';
 import { UpdateSkillDto } from './dtos/update-skill.dto';
 import { SkillService } from './skill.service';
+import { RoleType } from '../../constants/role-type';
 
 @Controller('skills')
 @ApiTags('skills')
 export class SkillController {
+  private logger: Logger = new Logger('SkillController');
+
   constructor(private skillService: SkillService) {}
 
   @Post()
@@ -33,8 +37,15 @@ export class SkillController {
     return entity.toDto();
   }
 
-  @Get()
+  @Get('enabled')
   @Auth([])
+  @HttpCode(HttpStatus.OK)
+  getAllEnabledSkill(@Query() skillPageOptionsDto: SkillPageOptionsDto): Promise<PageDto<SkillDto>> {
+    return this.skillService.getAllEnabledSkill(skillPageOptionsDto);
+  }
+
+  @Get()
+  @Auth([RoleType.ADMIN], { public: true })
   @HttpCode(HttpStatus.OK)
   getAllSkill(@Query() skillPageOptionsDto: SkillPageOptionsDto): Promise<PageDto<SkillDto>> {
     return this.skillService.getAllSkill(skillPageOptionsDto);
@@ -50,6 +61,7 @@ export class SkillController {
   }
 
   @Put(':id')
+  @Auth([RoleType.ADMIN])
   @HttpCode(HttpStatus.ACCEPTED)
   updateSkill(
     @UUIDParam('id') id: Uuid,
@@ -58,9 +70,20 @@ export class SkillController {
     return this.skillService.updateSkill(id, updateSkillDto);
   }
 
+  @Post('activate/:id')
+  @Auth([RoleType.ADMIN])
+  @HttpCode(HttpStatus.ACCEPTED)
+  activateSkill(
+    @UUIDParam('id') id: Uuid,
+  ): Promise<void> {
+    return this.skillService.activateSkill(id);
+  }
+
   @Delete(':id')
+  @Auth([RoleType.ADMIN])
   @HttpCode(HttpStatus.ACCEPTED)
   async deleteSkill(@UUIDParam('id') id: Uuid): Promise<void> {
+    this.logger.log(`Starting to delete Skill with id '${id}'.`);
     await this.skillService.deleteSkill(id);
   }
 }

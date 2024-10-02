@@ -1,4 +1,5 @@
-import { Reflector } from '@nestjs/core';
+import { SetMetadata } from '@nestjs/common';
+import { RoleType } from '../constants/role-type';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export const Roles = Reflector.createDecorator<string[]>();
+export const Roles = (...roles: RoleType[]) => SetMetadata('roles', roles);

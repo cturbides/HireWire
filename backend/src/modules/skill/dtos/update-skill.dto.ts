@@ -5,5 +5,5 @@ export class UpdateSkillDto {
   description!: string;
 
   @BooleanFieldOptional()
-  isEnabled?: boolean;
+  official!: boolean;
 }

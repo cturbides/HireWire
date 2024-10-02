@@ -9,4 +9,7 @@ import { SkillDto } from './dtos/skill.dto';
 export class SkillEntity extends AbstractEntity<SkillDto> {
   @Column({ nullable: true, type: 'varchar' })
   description!: string | null;
+
+  @Column({ nullable: false, type: 'boolean', default: false })
+  official!: boolean | null;
 }

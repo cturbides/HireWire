@@ -3,14 +3,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { CreateSkillHandler } from './commands/create-skill.command';
 import { SkillController } from './skill.controller';
-import { SkillRepository } from './skill.repository';
 import { SkillService } from './skill.service';
 import { GetSkillHandler } from './queries/get-skill.query';
+import { SkillEntity } from './skill.entity';
 
 const handlers = [CreateSkillHandler, GetSkillHandler];
 
 @Module({
-  imports: [TypeOrmModule.forFeature([SkillRepository])],
+  imports: [TypeOrmModule.forFeature([SkillEntity])],
   providers: [SkillService, ...handlers],
   controllers: [SkillController],
 })

@@ -3,23 +3,23 @@ import { CommandBus } from '@nestjs/cqrs';
 import { Transactional } from 'typeorm-transactional';
 
 import type { PageDto } from '../../common/dto/page.dto';
-import { ValidatorService } from '../../shared/services/validator.service';
 import { CreateSkillCommand } from './commands/create-skill.command';
 import type { SkillDto } from './dtos/skill.dto';
 import type { SkillPageOptionsDto } from './dtos/skill-page-options.dto';
 import { SkillNotFoundException } from './exceptions/skill-not-found.exception';
-import type { SkillEntity } from './skill.entity';
-import { SkillRepository } from './skill.repository';
+import { SkillEntity } from './skill.entity';
 import { CreateSkillDto } from './dtos/create-skill.dto';
 import type { UpdateSkillDto } from './dtos/update-skill.dto';
+import { InjectRepository } from '@nestjs/typeorm'
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class SkillService {
   constructor(
-    private skillRepository: SkillRepository,
-    private validatorService: ValidatorService,
+    @InjectRepository(SkillEntity)
+    private skillRepository: Repository<SkillEntity>,
     private commandBus: CommandBus,
-  ) {}
+  ) { }
 
   @Transactional()
   createSkill(createSkillDto: CreateSkillDto): Promise<SkillEntity> {
@@ -28,12 +28,22 @@ export class SkillService {
     );
   }
 
+  async getAllEnabledSkill(skillPageOptionsDto: SkillPageOptionsDto): Promise<PageDto<SkillDto>> {
+    const queryBuilder = this.skillRepository
+      .createQueryBuilder('skill')
+      .where('skill.state = :state', { state: true });
+
+    const [items, pageMetaDto] = await queryBuilder.paginate(skillPageOptionsDto);
+
+    return items.toPageDto(pageMetaDto);
+  }
+
   async getAllSkill(
     skillPageOptionsDto: SkillPageOptionsDto,
   ): Promise<PageDto<SkillDto>> {
     const queryBuilder = this.skillRepository
-      .createQueryBuilder('skill')
-      .leftJoinAndSelect('skill.translations', 'skillTranslation');
+      .createQueryBuilder('skill');
+
     const [items, pageMetaDto] = await queryBuilder.paginate(skillPageOptionsDto);
 
     return items.toPageDto(pageMetaDto);
@@ -67,9 +77,28 @@ export class SkillService {
       throw new SkillNotFoundException();
     }
 
-    this.skillRepository.merge(skillEntity, updateSkillDto);
+    await this.skillRepository.save({
+      ...skillEntity,
+      ...updateSkillDto,
+      id: skillEntity.id,
+    });
+  }
 
-    await this.skillRepository.save(updateSkillDto);
+  async activateSkill(id: Uuid): Promise<void> {
+    const queryBuilder = this.skillRepository
+      .createQueryBuilder('skill')
+      .where('skill.id = :id', { id });
+
+    const skillEntity = await queryBuilder.getOne();
+
+    if (!skillEntity) {
+      throw new SkillNotFoundException();
+    }
+
+    await this.skillRepository.save({
+      state: true,
+      id: skillEntity.id,
+    });
   }
 
   async deleteSkill(id: Uuid): Promise<void> {
@@ -83,6 +112,9 @@ export class SkillService {
       throw new SkillNotFoundException();
     }
 
-    await this.skillRepository.remove(skillEntity);
+    await this.skillRepository.save({
+      id: skillEntity.id,
+      state: false,
+    })
   }
 }
