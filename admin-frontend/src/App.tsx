@@ -10,6 +10,7 @@ import { SkillCreate, SkillEdit, SkillList } from './resources/skill';
 import { LanguageCreate, LanguageEdit, LanguageList } from './resources/language';
 import { PositionCreate, PositionEdit, PositionList } from './resources/position';
 import { EmployeeCreate, EmployeeEdit, EmployeeList } from './resources/employee';
+import { EducationCreate, EducationEdit, EducationList } from './resources/education';
 import { LaboralExperienceCreate, LaboralExperienceEdit, LaboralExperienceList } from './resources/laboral-experience';
 
 export const App = (props) => (
@@ -57,5 +58,14 @@ export const App = (props) => (
       create={LaboralExperienceCreate}
       edit={LaboralExperienceEdit}
     />
+
+    <Resource
+      {...props}
+      name="education"
+      list={EducationList}
+      create={EducationCreate}
+      edit={EducationEdit}
+    />
+
   </Admin>
 );

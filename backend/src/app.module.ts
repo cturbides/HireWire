@@ -26,6 +26,7 @@ import { LanguageModule } from './modules/language/language.module';
 import { PositionModule } from './modules/position/position.module';
 import { EmployeeModule } from './modules/employee/employee.module';
 import { ApplicantModule } from './modules/applicant/applicant.module';
+import { EducationModule } from './modules/education/education.module';
 import { EntitySubscribersModule } from './entity-subscribers/entity-subscribers.module';
 import { LaboralExperienceModule } from './modules/laboral-experience/laboral-experience.module';
 
@@ -38,6 +39,7 @@ import { LaboralExperienceModule } from './modules/laboral-experience/laboral-ex
     PositionModule,
     EmployeeModule,
     ApplicantModule,
+    EducationModule,
     LaboralExperienceModule,
     ClsModule.forRoot({
       global: true,
