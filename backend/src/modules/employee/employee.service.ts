@@ -69,6 +69,8 @@ export class EmployeeService {
       .leftJoinAndSelect('employee.position', 'position')
       .where('employee.state = :state', { state: true });
 
+    queryBuilder.orderBy(`employee.${employeePageOptionsDto.sort}`, employeePageOptionsDto.order);
+
     const [items, pageMetaDto] = await queryBuilder.paginate(employeePageOptionsDto);
 
     return items.toPageDto(pageMetaDto);
@@ -81,6 +83,8 @@ export class EmployeeService {
       .createQueryBuilder('employee')
       .leftJoinAndSelect('employee.user', 'user')
       .leftJoinAndSelect('employee.position', 'position');
+
+    queryBuilder.orderBy(`employee.${employeePageOptionsDto.sort}`, employeePageOptionsDto.order);
 
     const [items, pageMetaDto] = await queryBuilder.paginate(employeePageOptionsDto);
 

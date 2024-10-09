@@ -5,7 +5,7 @@ import { Transactional } from 'typeorm-transactional';
 import type { PageDto } from '../../common/dto/page.dto';
 import { CreatePositionCommand } from './commands/create-position.command';
 import type { PositionDto } from './dtos/position.dto';
-import type { PositionPageOptionsDto } from './dtos/position-page-options.dto';
+import { PositionPageOptionsDto } from './dtos/position-page-options.dto';
 import { PositionNotFoundException } from './exceptions/position-not-found.exception';
 import { PositionEntity } from './position.entity';
 import { CreatePositionDto } from './dtos/create-position.dto';
@@ -39,6 +39,8 @@ export class PositionService {
       .where('position.available = :available', { available: true })
       .andWhere('position.state = :state', { state: true });
 
+    queryBuilder.orderBy(`position.${positionPageOptionsDto.sort}`, positionPageOptionsDto.order);
+
     const [items, pageMetaDto] = await queryBuilder.paginate(positionPageOptionsDto);
 
     return items.toPageDto(pageMetaDto);
@@ -49,6 +51,8 @@ export class PositionService {
   ): Promise<PageDto<PositionDto>> {
     const queryBuilder = this.positionRepository
       .createQueryBuilder('position');
+
+    queryBuilder.orderBy(`position.${positionPageOptionsDto.sort}`, positionPageOptionsDto.order);
 
     const [items, pageMetaDto] = await queryBuilder.paginate(positionPageOptionsDto);
 

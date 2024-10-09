@@ -18,6 +18,11 @@ export class PageOptionsDto {
   })
   readonly page: number = 1;
 
+  @StringFieldOptional({
+    default: 'createdAt',
+  })
+  readonly sort: string = 'createdAt';
+
   @NumberFieldOptional({
     minimum: 1,
     maximum: 50,

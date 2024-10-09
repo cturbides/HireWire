@@ -25,7 +25,7 @@ export class UserService {
     private userRepository: Repository<UserEntity>,
     private validatorService: ValidatorService,
     private commandBus: CommandBus,
-  ) {}
+  ) { }
 
   /**
    * Find single user
@@ -88,6 +88,22 @@ export class UserService {
 
     return items.toPageDto(pageMetaDto);
   }
+
+  async getNotEmployeeUsers(
+    pageOptionsDto: UsersPageOptionsDto,
+  ): Promise<PageDto<UserDto>> {
+    const queryBuilder = this.userRepository.createQueryBuilder('user');
+    
+    queryBuilder
+    .leftJoin('Employees', 'employee', 'employee.user_id = user.id')
+    .where('employee.id IS NULL') 
+    .orderBy(`user.${pageOptionsDto.sort}`, pageOptionsDto.order);
+
+    const [items, pageMetaDto] = await queryBuilder.paginate(pageOptionsDto);
+
+    return items.toPageDto(pageMetaDto);
+  }
+
 
   async getUser(userId: Uuid): Promise<UserDto> {
     const queryBuilder = this.userRepository.createQueryBuilder('user');

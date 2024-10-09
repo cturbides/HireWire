@@ -33,6 +33,8 @@ export class LanguageService {
       .createQueryBuilder('language')
       .where('language.state = :state', { state: true });
 
+    queryBuilder.orderBy(`language.${languagePageOptionsDto.sort}`, languagePageOptionsDto.order);
+    
     const [items, pageMetaDto] = await queryBuilder.paginate(languagePageOptionsDto);
 
     return items.toPageDto(pageMetaDto);
@@ -43,6 +45,8 @@ export class LanguageService {
   ): Promise<PageDto<LanguageDto>> {
     const queryBuilder = this.languageRepository
       .createQueryBuilder('language');
+
+    queryBuilder.orderBy(`language.${languagePageOptionsDto.sort}`, languagePageOptionsDto.order);
 
     const [items, pageMetaDto] = await queryBuilder.paginate(languagePageOptionsDto);
 

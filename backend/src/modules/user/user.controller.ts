@@ -54,6 +54,20 @@ export class UserController {
     return this.userService.getUsers(pageOptionsDto);
   }
 
+  @Get('not-employees')
+  @Auth([RoleType.ADMIN])
+  @HttpCode(HttpStatus.OK)
+  @ApiPageResponse({
+    description: 'Get not employee users list',
+    type: PageDto,
+  })
+  getNotEmployeeUsers(
+    @Query(new ValidationPipe({ transform: true }))
+    pageOptionsDto: UsersPageOptionsDto,
+  ): Promise<PageDto<UserDto>> {
+    return this.userService.getNotEmployeeUsers(pageOptionsDto);
+  }
+
   @Get(':id')
   @Auth([RoleType.USER, RoleType.ADMIN])
   @HttpCode(HttpStatus.OK)

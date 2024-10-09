@@ -44,6 +44,8 @@ export class SkillService {
     const queryBuilder = this.skillRepository
       .createQueryBuilder('skill');
 
+    queryBuilder.orderBy(`skill.${skillPageOptionsDto.sort}`, skillPageOptionsDto.order);
+
     const [items, pageMetaDto] = await queryBuilder.paginate(skillPageOptionsDto);
 
     return items.toPageDto(pageMetaDto);
