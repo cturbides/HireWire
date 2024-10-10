@@ -6,15 +6,18 @@ import {
 import dataProvider from "./dataProvider";
 import { authProvider } from "./authProvider";
 import LoginPage from './resources/login/LoginPage';
+import CustomLayout from './resources/menu/CustomLayout';
 import { SkillCreate, SkillEdit, SkillList } from './resources/skill';
 import { LanguageCreate, LanguageEdit, LanguageList } from './resources/language';
 import { PositionCreate, PositionEdit, PositionList } from './resources/position';
 import { EmployeeCreate, EmployeeEdit, EmployeeList } from './resources/employee';
 import { EducationCreate, EducationEdit, EducationList } from './resources/education';
+import { ApplicantCreate, ApplicantEdit, ApplicantList } from './resources/applicant';
 import { LaboralExperienceCreate, LaboralExperienceEdit, LaboralExperienceList } from './resources/laboral-experience';
 
 export const App = (props) => (
   <Admin
+    layout={CustomLayout}
     dataProvider={dataProvider}
     authProvider={authProvider}
     loginPage={LoginPage}
@@ -67,5 +70,12 @@ export const App = (props) => (
       edit={EducationEdit}
     />
 
+    <Resource
+      {...props}
+      name="applicants"
+      list={ApplicantList}
+      create={ApplicantCreate}
+      edit={ApplicantEdit}
+    />
   </Admin>
 );

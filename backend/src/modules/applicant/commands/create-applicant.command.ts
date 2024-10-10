@@ -1,15 +1,18 @@
-import type { ICommand, ICommandHandler } from '@nestjs/cqrs';
+import { ICommand, ICommandHandler } from '@nestjs/cqrs';
 import { CommandHandler } from '@nestjs/cqrs';
-import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, In } from 'typeorm';
 
-import type { CreateApplicantDto } from '../dtos/create-applicant.dto';
+import { CreateApplicantDto } from '../dtos/create-applicant.dto';
 import { ApplicantEntity } from '../applicant.entity';
+import { SkillEntity } from '../../skill/skill.entity';
+import { LaboralExperienceEntity } from '../../laboral-experience/laboral-experience.entity';
+import { EducationEntity } from '../../education/education.entity';
 
 export class CreateApplicantCommand implements ICommand {
   constructor(
     public readonly createApplicantDto: CreateApplicantDto,
-  ) { }
+  ) {}
 }
 
 @CommandHandler(CreateApplicantCommand)
@@ -18,19 +21,45 @@ export class CreateApplicantHandler
   constructor(
     @InjectRepository(ApplicantEntity)
     private applicantRepository: Repository<ApplicantEntity>,
-  ) { }
+    
+    @InjectRepository(SkillEntity)
+    private skillRepository: Repository<SkillEntity>,
 
-  async execute(command: CreateApplicantCommand) {
+    @InjectRepository(LaboralExperienceEntity)
+    private laboralExperienceRepository: Repository<LaboralExperienceEntity>,
+
+    @InjectRepository(EducationEntity)
+    private educationRepository: Repository<EducationEntity>,
+  ) {}
+
+  async execute(command: CreateApplicantCommand): Promise<ApplicantEntity> {
+    const { createApplicantDto } = command;
+
+    const skills = await this.skillRepository.findBy({
+      id: In(createApplicantDto.skillIds),
+    });
+
+    const laboralExperiences = await this.laboralExperienceRepository.findBy({
+      id: In(createApplicantDto.laboralExperienceIds),
+    });
+
+    const educations = await this.educationRepository.findBy({
+      id: In(createApplicantDto.educationIds),
+    });
+
     const applicantEntity = this.applicantRepository.create({
       user: {
-        id: command.createApplicantDto.userId,
+        id: createApplicantDto.userId,
       },
       position: {
-        id: command.createApplicantDto.positionId,
+        id: createApplicantDto.positionId,
       },
-      documentId: command.createApplicantDto.documentId,
-      recommendedBy: command.createApplicantDto.recommendedBy,
-      desiredSalary: command.createApplicantDto.desiredSalary,
+      documentId: createApplicantDto.documentId,
+      recommendedBy: createApplicantDto.recommendedBy,
+      desiredSalary: createApplicantDto.desiredSalary,
+      skills: skills,
+      laboralExperiences: laboralExperiences,
+      educations: educations,
     });
 
     await this.applicantRepository.save(applicantEntity);

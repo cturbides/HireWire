@@ -21,6 +21,7 @@ import { UserIsDisabledException } from './exceptions/user-is-disabled.exception
 import { PositionIsDisabledException } from './exceptions/position-is-disabled.exception';
 import { PositionIsNotAvailableException } from './exceptions/position-is-not-available.exception';
 import { UpdatePositionDto } from '../position/dtos/update-position.dto';
+import { EmployeeReportDto } from './dtos/employee-report.dto';
 
 @Injectable()
 export class EmployeeService {
@@ -237,4 +238,26 @@ export class EmployeeService {
 
     await this.positionService.updatePosition(employeeEntity.position.id, { available: true } as UpdatePositionDto);
   }
+
+  async getEmployeesByJoinDateRange(employeeReportDto: EmployeeReportDto): Promise<EmployeeEntity[]> {
+    const { startDate, endDate } = employeeReportDto;
+
+    const queryBuilder = this.employeeRepository.createQueryBuilder('employee')
+      .leftJoinAndSelect('employee.user', 'user')
+      .leftJoinAndSelect('employee.position', 'position');
+
+    // Filtrar por fechas si están definidas
+    if (startDate) {
+      queryBuilder.andWhere('employee.joinDate >= :startDate', { startDate });
+    }
+
+    if (endDate) {
+      queryBuilder.andWhere('employee.joinDate <= :endDate', { endDate });
+    }
+
+    queryBuilder.orderBy('employee.joinDate', 'ASC');  // Ordenar por fecha de ingreso
+
+    return await queryBuilder.getMany();  // Devolver los resultados
+  }
+
 }

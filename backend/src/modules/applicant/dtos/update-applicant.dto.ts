@@ -1,4 +1,4 @@
-import { DocumentIdFieldOptional, NumberFieldOptional, StringFieldOptional, UUIDFieldOptional } from '../../../decorators';
+import { DocumentIdFieldOptional, NumberFieldOptional, StringFieldOptional, UUIDFieldOptional, UUIDArrayFieldOptional } from '../../../decorators';
 
 export class UpdateApplicantDto {
   @UUIDFieldOptional()
@@ -16,4 +16,13 @@ export class UpdateApplicantDto {
   @StringFieldOptional()
   @DocumentIdFieldOptional()
   documentId!: string;
+
+  @UUIDArrayFieldOptional({ each: true })
+  skillIds?: string[];
+
+  @UUIDArrayFieldOptional({ each: true })
+  laboralExperienceIds?: string[];
+
+  @UUIDArrayFieldOptional({ each: true })
+  educationIds?: string[];
 }

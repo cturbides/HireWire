@@ -45,6 +45,13 @@ export class ApplicantController {
     return this.applicantService.getAllEnabledApplicantByUserId(user, applicantPageOptionsDto);
   }
 
+  @Get(':userId')
+  @Auth([RoleType.USER, RoleType.ADMIN])
+  @HttpCode(HttpStatus.OK)
+  getAllApplicantsByUserId(@UUIDParam('userId') userId: Uuid, @AuthUser() user: UserDto): Promise<PageDto<ApplicantDto>> {
+    return this.applicantService.getAllApplicantByUserId(user, userId);
+  }
+
   @Get()
   @Auth([RoleType.USER, RoleType.ADMIN], { public: true })
   @HttpCode(HttpStatus.OK)

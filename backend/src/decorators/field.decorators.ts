@@ -487,6 +487,49 @@ export function UUIDField(
   return applyDecorators(...decorators);
 }
 
+export function UUIDArrayField(
+  options: Omit<ApiPropertyOptions, 'type' | 'format' | 'isArray'> & IFieldOptions = {},
+): PropertyDecorator {
+  const decorators = [
+    Type(() => String),
+    IsUUID('4', { each: true }),
+    ToArray(),
+  ];
+
+  if (options.nullable) {
+    decorators.push(NotEquals(null));
+  }
+
+  if (options.swagger !== false) {
+    decorators.push(
+      ApiUUIDProperty({ ...options, isArray: true }),
+    );
+  }
+  return applyDecorators(...decorators);
+}
+
+export function UUIDArrayFieldOptional(
+  options: Omit<ApiPropertyOptions, 'type' | 'format' | 'isArray'> & IFieldOptions = {},
+): PropertyDecorator {
+  const decorators = [
+    Type(() => String),
+    IsUUID('4', { each: true }), 
+    ToArray(),
+  ];
+
+  if (options.nullable) {
+    decorators.push(NotEquals(null));
+  }
+
+  if (options.swagger !== false) {
+    decorators.push(
+      ApiUUIDProperty({ ...options, isArray: true, required: false }),
+    );
+  }
+
+  return applyDecorators(...decorators);
+}
+
 export function UUIDFieldOptional(
   options: Omit<ApiPropertyOptions, 'type' | 'required' | 'isArray'> &
     IFieldOptions = {},

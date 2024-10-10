@@ -20,6 +20,7 @@ import { EmployeePageOptionsDto } from './dtos/employee-page-options.dto';
 import { UpdateEmployeeDto } from './dtos/update-employee.dto';
 import { EmployeeService } from './employee.service';
 import { RoleType } from '../../constants/role-type';
+import { EmployeeReportDto } from './dtos/employee-report.dto';
 
 @Controller('employees')
 @ApiTags('employees')
@@ -85,5 +86,15 @@ export class EmployeeController {
   async deleteEmployee(@UUIDParam('id') id: Uuid): Promise<void> {
     this.logger.log(`Starting to delete Employee with id '${id}'.`);
     await this.employeeService.deleteEmployee(id);
+  }
+
+  @Get('report')
+  @Auth([RoleType.ADMIN])
+  @HttpCode(HttpStatus.OK)
+  async getEmployeeReport(@Query() employeeReportDto: EmployeeReportDto): Promise<EmployeeDto[]> {
+    const employees = await this.employeeService.getEmployeesByJoinDateRange(employeeReportDto);
+
+    // Convertimos las entidades a DTOs
+    return employees.map(employee => employee.toDto());
   }
 }

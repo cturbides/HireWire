@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { Transactional } from 'typeorm-transactional';
+import { Order } from '../../constants';
 
 import type { PageDto } from '../../common/dto/page.dto';
 import { CreateApplicantCommand } from './commands/create-applicant.command';
@@ -11,7 +12,7 @@ import { ApplicantEntity } from './applicant.entity';
 import { CreateApplicantDto } from './dtos/create-applicant.dto';
 import type { UpdateApplicantDto } from './dtos/update-applicant.dto';
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { UserService } from '../user/user.service';
 import { PositionService } from '../position/position.service';
 import { SalaryIsLessThanMinSalaryException } from './exceptions/salary-is-less-than-min-salary.exception';
@@ -24,15 +25,26 @@ import { UserDto } from '../../modules/user/dtos/user.dto';
 import { RoleType } from '../../constants/role-type';
 import { InvalidUserIdTryingToCreateApplicantException } from './exceptions/invalid-user-id-trying-to-create-applicant.exception';
 import { InvalidUserIdException } from './exceptions/invalid-user-id.exception';
+import { SkillEntity } from '../skill/skill.entity';
+import { LaboralExperienceEntity } from '../laboral-experience/laboral-experience.entity';
+import { EducationEntity } from '../education/education.entity';
 
 @Injectable()
 export class ApplicantService {
+  private logger: Logger = new Logger('ApplicantController');
+
   constructor(
     private commandBus: CommandBus,
     private userService: UserService,
     private positionService: PositionService,
     @InjectRepository(ApplicantEntity)
     private applicantRepository: Repository<ApplicantEntity>,
+    @InjectRepository(SkillEntity)
+    private skillRepository: Repository<SkillEntity>,
+    @InjectRepository(LaboralExperienceEntity)
+    private laboralExperienceRepository: Repository<LaboralExperienceEntity>,
+    @InjectRepository(EducationEntity)
+    private educationRepository: Repository<EducationEntity>,
   ) { }
 
   @Transactional()
@@ -64,8 +76,23 @@ export class ApplicantService {
       throw new SalaryIsLessThanMinSalaryException();
     }
 
+    const skills = await this.skillRepository.findBy({ id: In(createApplicantDto.skillIds) });
+    const laboralExperiences = await this.laboralExperienceRepository.findBy({ id: In(createApplicantDto.laboralExperienceIds) });
+    const educations = await this.educationRepository.findBy({ id: In(createApplicantDto.educationIds) });
+
+    this.logger.log('AAAA');
+
     return this.commandBus.execute<CreateApplicantCommand, ApplicantEntity>(
-      new CreateApplicantCommand(createApplicantDto),
+      new CreateApplicantCommand({
+        documentId: createApplicantDto.documentId,
+        desiredSalary: createApplicantDto.desiredSalary,
+        userId: createApplicantDto.userId,
+        positionId: createApplicantDto.positionId,
+        recommendedBy: createApplicantDto.recommendedBy,
+        skillIds: skills.map(skill => skill.id),
+        laboralExperienceIds: laboralExperiences.map(exp => exp.id),
+        educationIds: educations.map(edu => edu.id),
+      }),
     );
   }
 
@@ -78,6 +105,25 @@ export class ApplicantService {
       .andWhere('applicant.user.id = :userId', { userId: user.id });
 
     const [items, pageMetaDto] = await queryBuilder.paginate(applicantPageOptionsDto);
+
+    return items.toPageDto(pageMetaDto);
+  }
+
+  async getAllApplicantByUserId(
+    user: UserDto,
+    userId: string
+  ): Promise<PageDto<ApplicantDto>> {
+    if (user.id !== userId && user.role !== RoleType.ADMIN) {
+      throw new InvalidUserIdException();
+    }
+
+    const queryBuilder = this.applicantRepository
+      .createQueryBuilder('applicant')
+      .leftJoinAndSelect('applicant.user', 'user')
+      .leftJoinAndSelect('applicant.position', 'position')
+      .where('applicant.user.id = :userId', { userId: userId });
+
+    const [items, pageMetaDto] = await queryBuilder.paginate({ page: 1, take: 100000, skip: 0, order: Order.ASC, sort: '' });
 
     return items.toPageDto(pageMetaDto);
   }
@@ -130,18 +176,13 @@ export class ApplicantService {
     return applicantEntity;
   }
 
+  @Transactional()
   async updateApplicant(
     id: Uuid,
     user: UserDto,
     updateApplicantDto: UpdateApplicantDto,
   ): Promise<void> {
-    const queryBuilder = this.applicantRepository
-      .createQueryBuilder('applicant')
-      .leftJoinAndSelect('applicant.user', 'user')
-      .leftJoinAndSelect('applicant.position', 'position')
-      .where('applicant.id = :id', { id });
-
-    const applicantEntity = await queryBuilder.getOne();
+    const applicantEntity = await this.applicantRepository.findOne({ where: { id }, relations: ['user', 'position'] });
 
     if (!applicantEntity) {
       throw new ApplicantNotFoundException();
@@ -188,7 +229,6 @@ export class ApplicantService {
       positionId = position.id;
     }
 
-
     if (updateApplicantDto.desiredSalary && updateApplicantDto.desiredSalary > position.maxSalary) {
       throw new SalaryIsBiggerThanMaxSalaryException();
     }
@@ -197,16 +237,27 @@ export class ApplicantService {
       throw new SalaryIsLessThanMinSalaryException();
     }
 
+    // Actualizar skills, experiencias laborales y capacitaciones educativas si están presentes
+    const skills = updateApplicantDto.skillIds
+      ? await this.skillRepository.findBy({ id: In(updateApplicantDto.skillIds) })
+      : applicantEntity.skills;
+
+    const laboralExperiences = updateApplicantDto.laboralExperienceIds
+      ? await this.laboralExperienceRepository.findBy({ id: In(updateApplicantDto.laboralExperienceIds) })
+      : applicantEntity.laboralExperiences;
+
+    const educations = updateApplicantDto.educationIds
+      ? await this.educationRepository.findBy({ id: In(updateApplicantDto.educationIds) })
+      : applicantEntity.educations;
+
     await this.applicantRepository.save({
       ...applicantEntity,
       ...updateApplicantDto,
-      user: {
-        id: userId,
-      },
-      position: {
-        id: positionId,
-      },
-      id: applicantEntity.id,
+      user: { id: userId },
+      position: { id: positionId },
+      skills,
+      laboralExperiences,
+      educations,
     });
   }
 

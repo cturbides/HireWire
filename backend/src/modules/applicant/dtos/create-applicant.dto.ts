@@ -1,4 +1,4 @@
-import { DocumentIdField, NumberField, StringField, UUIDField } from '../../../decorators';
+import { DocumentIdField, NumberField, StringField, UUIDField, UUIDArrayField } from '../../../decorators';
 
 export class CreateApplicantDto {
   @UUIDField()
@@ -16,4 +16,13 @@ export class CreateApplicantDto {
 
   @StringField()
   recommendedBy!: string;
+
+  @UUIDArrayField({ each: true })
+  skillIds!: string[];
+
+  @UUIDArrayField({ each: true })
+  laboralExperienceIds!: string[];
+
+  @UUIDArrayField({ each: true })
+  educationIds!: string[];
 }

@@ -6,7 +6,7 @@ export const EmployeeList = (props) => (
         <Datagrid>
             <TextField source="id" />
             <BooleanField source='state' />
-            <DateField source="createdAt" />
+            <DateField source="createdAt" label="Join Date" />
             <DateField source="updatedAt" />
             <TextField source="department" />
             <TextField source="user.id" label="User ID" />
