@@ -10,7 +10,7 @@ export const EmployeeList = (props) => (
             <DateField source="updatedAt" />
             <TextField source="department" />
             <TextField source="user.id" label="User ID" />
-            <TextField source="documentId" label="Document ID" />
+            <TextField source="user.documentId" label="Document ID" />
             <TextField source="position.name" label="Position" />
             <NumberField source="mensualSalary" label="Mensual Salary" />
             <EditButton />

@@ -1,9 +1,15 @@
 import { RISK_LEVEL } from '../utils/risk-level.enum';
 import { validateMaxSalary, validateMinSalary } from '../utils/salary.util';
-import { Edit, SimpleForm, TextInput, NumberInput, BooleanInput, SelectInput } from 'react-admin';
+import { Edit, SimpleForm, TextInput, NumberInput, BooleanInput, SelectInput, useRecordContext } from 'react-admin';
+
+const PositionTitle = () => {
+    const record = useRecordContext();
+    return <span>Position {record ? `"${record.name}"` : ''}</span>;
+};
+
 
 export const PositionEdit = () => (
-    <Edit>
+    <Edit title={<PositionTitle />}>
         <SimpleForm>
             <TextInput source="name" label="Position Name" />
             <NumberInput source="minSalary" label="Minimum Salary" validate={validateMinSalary} />

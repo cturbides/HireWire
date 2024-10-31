@@ -22,9 +22,6 @@ export class EmployeeEntity extends AbstractEntity<EmployeeDto> {
   @Column({ nullable: false,  type: 'varchar' })
   department!: string;
 
-  @Column({ nullable: false,  type: 'varchar', unique: true })
-  documentId!: string;
-
   @ManyToOne(() => PositionEntity, { nullable: false })
   @JoinColumn()
   position!: PositionEntity;

@@ -1,4 +1,4 @@
-import { DocumentIdField, NumberField, StringField, UUIDField } from '../../../decorators';
+import { NumberField, StringField, UUIDField } from '../../../decorators';
 
 export class CreateEmployeeDto {
   @UUIDField()
@@ -12,8 +12,4 @@ export class CreateEmployeeDto {
 
   @StringField()
   department!: string;
-
-  @StringField()
-  @DocumentIdField()
-  documentId!: string;
 }

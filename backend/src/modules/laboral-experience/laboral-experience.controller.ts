@@ -33,6 +33,8 @@ export class LaboralExperienceController {
   @Auth([])
   @HttpCode(HttpStatus.CREATED)
   async createLaboralExperience(@AuthUser() user: UserDto, @Body() createLaboralExperienceDto: CreateLaboralExperienceDto) {
+    this.logger.log(`CreateLaboralExperience --> ${JSON.stringify(createLaboralExperienceDto)}`)
+
     const entity = await this.laboralExperienceService.createLaboralExperience(user, createLaboralExperienceDto);
 
     return entity.toDto();
@@ -69,6 +71,7 @@ export class LaboralExperienceController {
     @UUIDParam('id') id: Uuid,
     @Body() updateLaboralExperienceDto: UpdateLaboralExperienceDto,
   ): Promise<void> {
+    this.logger.log(`UpdateLaboralExperience --> ${JSON.stringify(updateLaboralExperienceDto)}`)
     return this.laboralExperienceService.updateLaboralExperience(id, user, updateLaboralExperienceDto);
   }
 

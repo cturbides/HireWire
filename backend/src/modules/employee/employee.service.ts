@@ -259,5 +259,4 @@ export class EmployeeService {
 
     return await queryBuilder.getMany();  // Devolver los resultados
   }
-
 }

@@ -9,8 +9,8 @@ export const LaboralExperienceCreate = () => (
             <TextInput source="company" label="Company" validate={required()} />
             <TextInput source="position" label="Position" validate={required()} />
             <NumberInput source="salary" label="Salary" validate={required()} />
-            <DateInput source="startDate" label="Start Date" validate={required()} />
-            <DateInput source="endDate" label="End Date" />
+            <DateInput source="startDate" label="Start Date" validate={required()} locales="es-DO" />
+            <DateInput source="endDate" label="End Date" locales="es-DO" />
         </SimpleForm>
     </Create>
 );

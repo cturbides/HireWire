@@ -27,10 +27,6 @@ export class EmployeeDto extends AbstractDto {
   department!: string;
 
   @ApiProperty()
-  @StringFieldOptional()
-  documentId!: string;
-
-  @ApiProperty()
   @DateFieldOptional()
   joinDate!: Date;
 
@@ -43,7 +39,6 @@ export class EmployeeDto extends AbstractDto {
     this.state = entityName.state;
     this.joinDate = entityName.joinDate;
     this.department = entityName.department;
-    this.documentId = entityName.documentId;
     this.mensualSalary = entityName.mensualSalary;
   }
 }

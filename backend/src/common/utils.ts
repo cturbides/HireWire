@@ -45,3 +45,9 @@ export function getVariableName<TResult>(
 
   return memberParts.at(-1);
 }
+
+export const adjustDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  date.setDate(date.getDate() - 1); 
+  return date.toISOString();
+}

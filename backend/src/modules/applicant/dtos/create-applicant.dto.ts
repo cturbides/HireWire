@@ -1,4 +1,4 @@
-import { DocumentIdField, NumberField, StringField, UUIDField, UUIDArrayField } from '../../../decorators';
+import { NumberField, StringField, UUIDField, UUIDArrayField } from '../../../decorators';
 
 export class CreateApplicantDto {
   @UUIDField()
@@ -9,10 +9,6 @@ export class CreateApplicantDto {
 
   @NumberField({ int: false, isPositive: true })
   desiredSalary!: number;
-
-  @StringField()
-  @DocumentIdField()
-  documentId!: string;
 
   @StringField()
   recommendedBy!: string;

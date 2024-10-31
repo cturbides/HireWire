@@ -29,7 +29,6 @@ export class PositionSuscriber implements EntitySubscriberInterface<PositionEnti
                     state: false,
                 });
             }
-
         }
     }
 }

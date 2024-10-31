@@ -52,14 +52,14 @@ export class ApplicantController {
     return this.applicantService.getAllApplicantByUserId(user, userId);
   }
 
-  @Get()
-  @Auth([RoleType.USER, RoleType.ADMIN], { public: true })
+  @Get('all')
+  @Auth([RoleType.ADMIN], { public: true })
   @HttpCode(HttpStatus.OK)
   getAllApplicantByUser(@AuthUser() user: UserDto, @Query() applicantPageOptionsDto: ApplicantPageOptionsDto): Promise<PageDto<ApplicantDto>> {
     return this.applicantService.getAllApplicantByUser(user, applicantPageOptionsDto);
   }
 
-  @Get('all')
+  @Get()
   @Auth([RoleType.ADMIN], { public: false })
   @HttpCode(HttpStatus.OK)
   getAllApplicant(@Query() applicantPageOptionsDto: ApplicantPageOptionsDto): Promise<PageDto<ApplicantDto>> {
@@ -101,5 +101,14 @@ export class ApplicantController {
   async deleteApplicant(@UUIDParam('id') id: Uuid): Promise<void> {
     this.logger.log(`Starting to delete Applicant with id '${id}'.`);
     await this.applicantService.deleteApplicant(id);
+  }
+
+  @Post('filter')
+  @Auth([RoleType.ADMIN])
+  @HttpCode(HttpStatus.OK)
+  async filterApplicants(
+    @Query() applicantPageOptionsDto: ApplicantPageOptionsDto,
+  ): Promise<PageDto<ApplicantDto>> {
+    return this.applicantService.filterApplicants(applicantPageOptionsDto);
   }
 }

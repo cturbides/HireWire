@@ -1,4 +1,4 @@
-import { DateField, NumberField, StringField, UUIDField } from '../../../decorators';
+import { DateField, DateFieldOptional, NumberField, StringField, UUIDField } from '../../../decorators';
 
 export class CreateLaboralExperienceDto {
   @UUIDField()
@@ -16,6 +16,6 @@ export class CreateLaboralExperienceDto {
   @DateField()
   startDate!: Date;
 
-  @DateField()
-  endDate!: Date;
+  @DateFieldOptional()
+  endDate?: Date;
 }

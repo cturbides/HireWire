@@ -17,6 +17,8 @@ import { UserIsDisabledException } from './exceptions/user-is-disabled.exception
 import { UserDto } from '../user/dtos/user.dto';
 import { InvalidUserIdException } from './exceptions/invalid-user-id.exception';
 import { RoleType } from '../../constants/role-type';
+import { InvalidDateException } from './exceptions/invalid-date.exception';
+import { adjustDate } from '../../common/utils';
 
 @Injectable()
 export class LaboralExperienceService {
@@ -39,6 +41,16 @@ export class LaboralExperienceService {
       throw new InvalidUserIdException();
     }
 
+    createLaboralExperienceDto.startDate = new Date(adjustDate(createLaboralExperienceDto.startDate.toISOString()))
+    
+    if (createLaboralExperienceDto.endDate != null) {
+      createLaboralExperienceDto.endDate = new Date(adjustDate(createLaboralExperienceDto.endDate.toISOString()));
+    }
+
+    if (createLaboralExperienceDto.endDate && createLaboralExperienceDto.endDate < createLaboralExperienceDto.startDate) {
+      throw new InvalidDateException();
+    }
+  
     return this.commandBus.execute<CreateLaboralExperienceCommand, LaboralExperienceEntity>(
       new CreateLaboralExperienceCommand(createLaboralExperienceDto),
     );
@@ -111,6 +123,26 @@ export class LaboralExperienceService {
       throw new InvalidUserIdException();
     }
 
+    if (updateLaboralExperienceDto.startDate) {
+      updateLaboralExperienceDto.startDate = new Date(adjustDate(updateLaboralExperienceDto.startDate.toISOString()));
+    }
+
+    if (updateLaboralExperienceDto.endDate) {
+      updateLaboralExperienceDto.endDate = new Date(adjustDate(updateLaboralExperienceDto.endDate.toISOString()));
+    }
+
+    if (updateLaboralExperienceDto.endDate && laboralExperienceEntity.startDate > updateLaboralExperienceDto.endDate) {
+      throw new InvalidDateException();
+    }
+
+    if (updateLaboralExperienceDto.startDate && laboralExperienceEntity.endDate < updateLaboralExperienceDto.startDate) {
+      throw new InvalidDateException();
+    }
+
+    if (updateLaboralExperienceDto.endDate && updateLaboralExperienceDto.startDate && updateLaboralExperienceDto.endDate < updateLaboralExperienceDto.startDate) {
+      throw new InvalidDateException();
+    }
+  
     await this.laboralExperienceRepository.save({
       ...laboralExperienceEntity,
       ...updateLaboralExperienceDto,

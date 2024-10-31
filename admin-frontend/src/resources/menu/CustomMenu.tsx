@@ -6,6 +6,7 @@ import LanguageIcon from '@mui/icons-material/Language';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import SchoolIcon from '@mui/icons-material/School';
 import ApplicantIcon from '@mui/icons-material/PersonSearch';
+import ApplicantIconFilter from '@mui/icons-material/Person2Outlined';
 
 const CustomMenu = (props) => {
     return (
@@ -44,6 +45,11 @@ const CustomMenu = (props) => {
                 to="/applicants"
                 primaryText="Applicants"
                 leftIcon={<ApplicantIcon />}
+            />
+            <MenuItemLink
+                to="/applicants/filter"
+                primaryText="Applicants filter"
+                leftIcon={<ApplicantIconFilter />}
             />
         </Menu>
     );

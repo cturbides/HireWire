@@ -5,6 +5,7 @@ import {
   EmailFieldOptional,
   EnumFieldOptional,
   StringFieldOptional,
+  DocumentIdFieldOptional,
 } from '../../../decorators';
 import type { UserEntity } from '../user.entity';
 
@@ -24,6 +25,10 @@ export class UserDto extends AbstractDto {
   @EnumFieldOptional(() => RoleType)
   role?: RoleType;
 
+  @StringFieldOptional()
+  @DocumentIdFieldOptional()
+  documentId!: string;
+
   @EmailFieldOptional({ nullable: true })
   email?: string | null;
 
@@ -40,6 +45,7 @@ export class UserDto extends AbstractDto {
     this.role = user.role;
     this.email = user.email;
     this.avatar = user.avatar;
+    this.documentId = user.documentId;
     this.isActive = options?.isActive;
   }
 }

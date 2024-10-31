@@ -1,7 +1,13 @@
-import { Edit, SimpleForm, TextInput } from 'react-admin';
+import { Edit, SimpleForm, TextInput, useRecordContext } from 'react-admin';
+
+const LanguageTitle = () => {
+    const record = useRecordContext();
+    return <span>Language {record ? `"${record.description}"` : ''}</span>;
+};
+
 
 export const LanguageEdit = () => (
-    <Edit>
+    <Edit title={<LanguageTitle />}>
         <SimpleForm>
             <TextInput source="description" label="Description" />
         </SimpleForm>

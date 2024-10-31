@@ -26,10 +26,6 @@ export class ApplicantDto extends AbstractDto {
   @StringFieldOptional()
   recommendedBy!: string;
 
-  @ApiProperty()
-  @StringFieldOptional()
-  documentId!: string;
-
   constructor(entityName: ApplicantEntity) {
     super(entityName);
 
@@ -37,7 +33,6 @@ export class ApplicantDto extends AbstractDto {
     this.user = entityName.user.toDto()
     this.position = entityName.position.toDto();
 
-    this.documentId = entityName.documentId;
     this.desiredSalary = entityName.desiredSalary;
     this.recommendedBy = entityName.recommendedBy;
   }

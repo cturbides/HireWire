@@ -49,6 +49,8 @@ export class ApplicantService {
 
   @Transactional()
   async createApplicant(user: UserDto, createApplicantDto: CreateApplicantDto): Promise<ApplicantEntity> {
+    this.logger.log(`applicant --> ${JSON.stringify(createApplicantDto)}`);
+
     const foundUser = await this.userService.getUser(createApplicantDto.userId as Uuid);
     const position = await this.positionService.getSinglePosition(createApplicantDto.positionId as Uuid);
 
@@ -77,14 +79,15 @@ export class ApplicantService {
     }
 
     const skills = await this.skillRepository.findBy({ id: In(createApplicantDto.skillIds) });
-    const laboralExperiences = await this.laboralExperienceRepository.findBy({ id: In(createApplicantDto.laboralExperienceIds) });
-    const educations = await this.educationRepository.findBy({ id: In(createApplicantDto.educationIds) });
+    const laboralExperiences = await this.laboralExperienceRepository.findBy({ id: In(createApplicantDto.laboralExperienceIds), user: { id: In([createApplicantDto.userId])} });
+    const educations = await this.educationRepository.findBy({ id: In(createApplicantDto.educationIds), user: { id: In([createApplicantDto.userId]) } });
 
-    this.logger.log('AAAA');
+    this.logger.log(`skills --> ${JSON.stringify(skills)}`);
+    this.logger.log(`laboralExperiences --> ${JSON.stringify(laboralExperiences)}`);
+    this.logger.log(`educations --> ${JSON.stringify(educations)}`);
 
-    return this.commandBus.execute<CreateApplicantCommand, ApplicantEntity>(
+    const applicant = await this.commandBus.execute<CreateApplicantCommand, ApplicantEntity>(
       new CreateApplicantCommand({
-        documentId: createApplicantDto.documentId,
         desiredSalary: createApplicantDto.desiredSalary,
         userId: createApplicantDto.userId,
         positionId: createApplicantDto.positionId,
@@ -94,6 +97,9 @@ export class ApplicantService {
         educationIds: educations.map(edu => edu.id),
       }),
     );
+
+    this.logger.log(`Applicant ---> ${JSON.stringify(applicant)}`);
+    return applicant;
   }
 
   async getAllEnabledApplicantByUserId(user: UserDto, applicantPageOptionsDto: ApplicantPageOptionsDto): Promise<PageDto<ApplicantDto>> {
@@ -309,4 +315,32 @@ export class ApplicantService {
       state: false,
     });
   }
+
+  async filterApplicants(applicantPageOptionsDto: ApplicantPageOptionsDto): Promise<PageDto<ApplicantDto>> {
+    const { positionId, skillId, educationId } = applicantPageOptionsDto;
+
+    this.logger.log(`applicantsPageOptions --> ${JSON.stringify(applicantPageOptionsDto)}`);
+
+    const queryBuilder = this.applicantRepository
+      .createQueryBuilder('applicant')
+      .leftJoinAndSelect('applicant.user', 'user')
+      .leftJoinAndSelect('applicant.position', 'position');
+
+    if (positionId) {
+      queryBuilder.andWhere('applicant.position.id = :positionId', { positionId });
+    }
+
+    if (skillId) {
+      queryBuilder.andWhere('skills.id = :skillId', { skillId });
+    }
+
+    if (educationId) {
+      queryBuilder.andWhere('educations.id = :educationId', { educationId });
+    }
+
+    const [items, pageMetaDto] = await queryBuilder.paginate(applicantPageOptionsDto);
+
+    return items.toPageDto(pageMetaDto);
+  }
+
 }

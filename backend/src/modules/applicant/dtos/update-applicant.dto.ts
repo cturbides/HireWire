@@ -1,4 +1,4 @@
-import { DocumentIdFieldOptional, NumberFieldOptional, StringFieldOptional, UUIDFieldOptional, UUIDArrayFieldOptional } from '../../../decorators';
+import { NumberFieldOptional, StringFieldOptional, UUIDFieldOptional, UUIDArrayFieldOptional } from '../../../decorators';
 
 export class UpdateApplicantDto {
   @UUIDFieldOptional()
@@ -12,10 +12,6 @@ export class UpdateApplicantDto {
 
   @StringFieldOptional()
   recommendedBy!: string;
-
-  @StringFieldOptional()
-  @DocumentIdFieldOptional()
-  documentId!: string;
 
   @UUIDArrayFieldOptional({ each: true })
   skillIds?: string[];

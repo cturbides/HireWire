@@ -13,6 +13,8 @@ import type { UpdatePositionDto } from './dtos/update-position.dto';
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm';
 import { MinSalaryIsBiggerThanMaxSalaryException } from './exceptions/max-salary-is-bigger-than-min-salary.exception';
+import { EmployeeEntity } from '../employee/employee.entity';
+import { FoundEmployeeException } from './exceptions/found-employee.exception';
 
 @Injectable()
 export class PositionService {
@@ -20,6 +22,8 @@ export class PositionService {
     @InjectRepository(PositionEntity)
     private positionRepository: Repository<PositionEntity>,
     private commandBus: CommandBus,
+    @InjectRepository(EmployeeEntity)
+    private employeeRepository: Repository<EmployeeEntity>,
   ) { }
 
   @Transactional()
@@ -93,6 +97,18 @@ export class PositionService {
 
     if (updatePositionDto.maxSalary && updatePositionDto.maxSalary < positionEntity.minSalary) {
       throw new MinSalaryIsBiggerThanMaxSalaryException();
+    }
+
+    const secondQueryBuilder = this.employeeRepository.createQueryBuilder('employee')
+      .leftJoinAndSelect('employee.user', 'user')
+      .leftJoinAndSelect('employee.position', 'position')
+      .where('employee.position.id = :positionId', { positionId: id })
+      .andWhere('employee.state IS TRUE');
+
+    const allEmployees = await secondQueryBuilder.getMany();
+
+    if (allEmployees.length) {
+      throw new FoundEmployeeException();
     }
 
     await this.positionRepository.save({

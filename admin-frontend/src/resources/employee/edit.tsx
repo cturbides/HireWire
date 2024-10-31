@@ -1,17 +1,14 @@
-import { Edit, SimpleForm, NumberInput, AutocompleteInput, ReferenceInput, required, TextInput } from 'react-admin';
-import { validateDocumentId } from '../utils/document-id.util';
+import { Edit, SimpleForm, NumberInput, AutocompleteInput, ReferenceInput, required, TextInput, useRecordContext } from 'react-admin';
 
-const validateDocumentIdInput = (value) => {
-    if (!validateDocumentId(value)) {
-        return 'Invalid document ID';
-    }
-
-    return undefined;
+const EmployeeTitle = () => {
+    const record = useRecordContext();
+    console.log({ record });
+    return <span>Position {record ? `"${record.name}"` : ''}</span>;
 };
 
 export const EmployeeEdit = () => {
     return (
-        <Edit>
+        <Edit title={<EmployeeTitle />}>
             <SimpleForm>
                 <ReferenceInput
                     label="User"
@@ -44,7 +41,6 @@ export const EmployeeEdit = () => {
 
                 <NumberInput source="mensualSalary" label="Mensual Salary" />
                 <TextInput source="department" label="Department" />
-                <TextInput source="documentId" label="Document ID" validate={[validateDocumentIdInput]} />
             </SimpleForm>
         </Edit>
     );

@@ -1,4 +1,4 @@
-import { EmailField, PasswordField, StringField } from '../../../decorators';
+import { DocumentIdField, EmailField, PasswordField, StringField } from '../../../decorators';
 
 export class UserRegisterDto {
   @StringField()
@@ -12,4 +12,7 @@ export class UserRegisterDto {
 
   @PasswordField({ minLength: 6 })
   readonly password!: string;
+
+  @DocumentIdField()
+  readonly documentId!: string;
 }

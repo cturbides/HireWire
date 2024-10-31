@@ -1,4 +1,4 @@
-import { DocumentIdFieldOptional, NumberFieldOptional, StringFieldOptional, UUIDFieldOptional } from '../../../decorators';
+import { NumberFieldOptional, StringFieldOptional, UUIDFieldOptional } from '../../../decorators';
 
 export class UpdateEmployeeDto {
   @UUIDFieldOptional()
@@ -12,8 +12,4 @@ export class UpdateEmployeeDto {
 
   @StringFieldOptional()
   department!: string;
-
-  @StringFieldOptional()
-  @DocumentIdFieldOptional()
-  documentId!: string;
 }

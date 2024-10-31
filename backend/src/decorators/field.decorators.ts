@@ -586,6 +586,7 @@ export function DateFieldOptional(
 ): PropertyDecorator {
   return applyDecorators(
     IsUndefinable(),
+    IsNullable(),
     DateField({ ...options, required: false }),
   );
 }

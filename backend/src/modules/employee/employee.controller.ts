@@ -94,7 +94,6 @@ export class EmployeeController {
   async getEmployeeReport(@Query() employeeReportDto: EmployeeReportDto): Promise<EmployeeDto[]> {
     const employees = await this.employeeService.getEmployeesByJoinDateRange(employeeReportDto);
 
-    // Convertimos las entidades a DTOs
     return employees.map(employee => employee.toDto());
   }
 }

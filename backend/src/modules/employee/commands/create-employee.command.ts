@@ -32,7 +32,6 @@ export class CreateEmployeeHandler
         id: command.createEmployeeDto.positionId,
       },
       joinDate: new Date().toISOString(),
-      documentId: command.createEmployeeDto.documentId,
       department: command.createEmployeeDto.department,
       mensualSalary: command.createEmployeeDto.mensualSalary,
     });

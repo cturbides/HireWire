@@ -1,13 +1,4 @@
 import { Create, SimpleForm, NumberInput, AutocompleteInput, ReferenceInput, required, TextInput } from 'react-admin';
-import { validateDocumentId } from '../utils/document-id.util';
-
-const validateDocumentIdInput = (value) => {
-    if (!validateDocumentId(value)) {
-        return 'Invalid document ID';
-    }
-
-    return undefined;
-};
 
 export const EmployeeCreate = () => {
     return (
@@ -31,7 +22,6 @@ export const EmployeeCreate = () => {
 
                 <NumberInput source="mensualSalary" label="Mensual Salary" validate={[required()]} />
                 <TextInput source="department" label="Department" validate={required()} />
-                <TextInput source="documentId" label="Document ID" validate={[required(), validateDocumentIdInput]} />
             </SimpleForm>
         </Create>
     )

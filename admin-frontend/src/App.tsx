@@ -1,7 +1,9 @@
 import {
   Admin,
   Resource,
+  CustomRoutes,
 } from "react-admin";
+import { Route } from 'react-router-dom';
 
 import dataProvider from "./dataProvider";
 import { authProvider } from "./authProvider";
@@ -14,6 +16,7 @@ import { EmployeeCreate, EmployeeEdit, EmployeeList } from './resources/employee
 import { EducationCreate, EducationEdit, EducationList } from './resources/education';
 import { ApplicantCreate, ApplicantEdit, ApplicantList } from './resources/applicant';
 import { LaboralExperienceCreate, LaboralExperienceEdit, LaboralExperienceList } from './resources/laboral-experience';
+import FlexibleApplicantFilter from "./Sample";
 
 export const App = (props) => (
   <Admin
@@ -77,5 +80,9 @@ export const App = (props) => (
       create={ApplicantCreate}
       edit={ApplicantEdit}
     />
+
+    <CustomRoutes>
+      <Route path="/applicants/filter" element={<FlexibleApplicantFilter />} />
+    </CustomRoutes>
   </Admin>
 );

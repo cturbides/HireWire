@@ -16,9 +16,6 @@ export class ApplicantEntity extends AbstractEntity<ApplicantDto> {
   @JoinColumn()
   user!: UserEntity;
 
-  @Column({ nullable: false, type: 'varchar', unique: true })
-  documentId!: string;
-
   @Column({ nullable: false, type: 'float' })
   desiredSalary!: number;
 
@@ -34,8 +31,10 @@ export class ApplicantEntity extends AbstractEntity<ApplicantDto> {
   skills!: SkillEntity[];
 
   @ManyToMany(() => LaboralExperienceEntity, { cascade: true, eager: true })
+  @JoinTable() 
   laboralExperiences!: LaboralExperienceEntity[];
 
   @ManyToMany(() => EducationEntity, { cascade: true, eager: true })
+  @JoinTable() 
   educations!: EducationEntity[];
 }
