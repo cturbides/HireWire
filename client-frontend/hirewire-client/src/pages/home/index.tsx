@@ -42,11 +42,24 @@ export const Home = () => {
 
     setIsError(false);
     setLoading(true);
+
     try {
-      const { data, meta } = await fetchAvailablePositions(page, 10);
-      const { data: skills } = await fetchSkills();
-      const { data: education } = await fetchEducation();
-      const { data: laboralExperiences } = await fetchLaboralExperiences();
+      const [
+        positionsResponse,
+        skillsResponse,
+        educationResponse,
+        laboralExperiencesResponse,
+      ] = await Promise.all([
+        fetchAvailablePositions(page, 10),
+        fetchSkills(),
+        fetchEducation(),
+        fetchLaboralExperiences(),
+      ]);
+
+      const { data, meta } = positionsResponse;
+      const { data: skills } = skillsResponse;
+      const { data: education } = educationResponse;
+      const { data: laboralExperiences } = laboralExperiencesResponse;
 
       setSkills(skills);
       setEducations(education);
