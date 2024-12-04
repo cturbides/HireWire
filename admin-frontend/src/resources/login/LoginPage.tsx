@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useLogin, useNotify, Notification } from 'react-admin';
+import React, { useState } from "react";
+import { useLogin, useNotify, Notification } from "react-admin";
 import {
   Avatar,
   Button,
@@ -8,17 +8,17 @@ import {
   Typography,
   Container,
   CssBaseline,
-  Paper
-} from '@mui/material';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
+  Paper,
+} from "@mui/material";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 
 const CustomLoginPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [documentId, setDocumentId] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [documentId, setDocumentId] = useState("");
   const [isRegistering, setIsRegistering] = useState(false); // Estado para alternar entre login y registro
   const login = useLogin();
   const notify = useNotify();
@@ -26,19 +26,17 @@ const CustomLoginPage = () => {
   // Manejador para enviar el formulario de inicio de sesión
   const handleLoginSubmit = (e) => {
     e.preventDefault();
-    login({ email, password }).catch(() =>
-      notify('Invalid email or password')
-    );
+    login({ email, password }).catch(() => notify("Invalid email or password"));
   };
 
   // Manejador para enviar el formulario de registro
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`https://turbo-bassoon-9x4vr7jp559c7g45-3000.app.github.dev/auth/register`, {
-        method: 'POST',
+      const response = await fetch(`http://localhost:3000/auth/register`, {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           firstName,
@@ -50,14 +48,16 @@ const CustomLoginPage = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Error registering user');
+        throw new Error("Error registering user");
       }
 
       const data = await response.json();
-      notify('Registration successful, you can now log in', { type: 'success' });
+      notify("Registration successful, you can now log in", {
+        type: "success",
+      });
       setIsRegistering(false); // Vuelve al formulario de inicio de sesión
     } catch (error) {
-      notify(`Error: ${error.message}`, { type: 'warning' });
+      notify(`Error: ${error.message}`, { type: "warning" });
     }
   };
 
@@ -68,16 +68,16 @@ const CustomLoginPage = () => {
         <Box
           sx={{
             marginTop: 4,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
           }}
         >
-          <Avatar sx={{ m: 1, bgcolor: 'primary.main' }}>
+          <Avatar sx={{ m: 1, bgcolor: "primary.main" }}>
             {isRegistering ? <PersonAddIcon /> : <LockOutlinedIcon />}
           </Avatar>
           <Typography component="h1" variant="h5">
-            {isRegistering ? 'Register' : 'Sign In'}
+            {isRegistering ? "Register" : "Sign In"}
           </Typography>
 
           {/* Formulario de Login */}
@@ -128,7 +128,11 @@ const CustomLoginPage = () => {
 
           {/* Formulario de Registro */}
           {isRegistering && (
-            <Box component="form" onSubmit={handleRegisterSubmit} sx={{ mt: 1 }}>
+            <Box
+              component="form"
+              onSubmit={handleRegisterSubmit}
+              sx={{ mt: 1 }}
+            >
               <TextField
                 margin="normal"
                 required

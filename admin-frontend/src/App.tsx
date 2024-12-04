@@ -1,22 +1,42 @@
-import {
-  Admin,
-  Resource,
-  CustomRoutes,
-} from "react-admin";
-import { Route } from 'react-router-dom';
+import { Admin, Resource, CustomRoutes } from "react-admin";
+import { Route } from "react-router-dom";
 
 import dataProvider from "./dataProvider";
 import { authProvider } from "./authProvider";
-import LoginPage from './resources/login/LoginPage';
-import CustomLayout from './resources/menu/CustomLayout';
-import { SkillCreate, SkillEdit, SkillList } from './resources/skill';
-import { LanguageCreate, LanguageEdit, LanguageList } from './resources/language';
-import { PositionCreate, PositionEdit, PositionList } from './resources/position';
-import { EmployeeCreate, EmployeeEdit, EmployeeList } from './resources/employee';
-import { EducationCreate, EducationEdit, EducationList } from './resources/education';
-import { ApplicantCreate, ApplicantEdit, ApplicantList } from './resources/applicant';
-import { LaboralExperienceCreate, LaboralExperienceEdit, LaboralExperienceList } from './resources/laboral-experience';
-import FlexibleApplicantFilter from "./Sample";
+import LoginPage from "./resources/login/LoginPage";
+import CustomLayout from "./resources/menu/CustomLayout";
+import { SkillCreate, SkillEdit, SkillList } from "./resources/skill";
+import {
+  LanguageCreate,
+  LanguageEdit,
+  LanguageList,
+} from "./resources/language";
+import {
+  PositionCreate,
+  PositionEdit,
+  PositionList,
+} from "./resources/position";
+import {
+  EmployeeCreate,
+  EmployeeEdit,
+  EmployeeList,
+} from "./resources/employee";
+import {
+  EducationCreate,
+  EducationEdit,
+  EducationList,
+} from "./resources/education";
+import {
+  ApplicantCreate,
+  ApplicantEdit,
+  ApplicantList,
+} from "./resources/applicant";
+import {
+  LaboralExperienceCreate,
+  LaboralExperienceEdit,
+  LaboralExperienceList,
+} from "./resources/laboral-experience";
+import FlexibleApplicantFilter from "./resources/flexible-search/FlexibleApplicantFilter";
 
 export const App = (props) => (
   <Admin
