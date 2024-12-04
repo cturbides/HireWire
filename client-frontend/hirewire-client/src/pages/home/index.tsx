@@ -4,6 +4,8 @@ import { ColorModeContextProvider } from "../../contexts/color-mode";
 import { PositionsList } from "./components/PositionList";
 import { HeaderSection } from "./components/HeaderSection";
 import { PositionModal } from "./components/PositionModal";
+import { EducationModal } from "./components/EducationModal";
+import { LaboralExperienceModal } from "./components/LaboralExperienceModal";
 import { Skill, Position, LaboralExperience, Education } from "./common/types";
 import { fetchSkills } from "./common/fetchSkills";
 import { fetchEducation } from "./common/fetchEducation";
@@ -28,6 +30,10 @@ export const Home = () => {
     null
   );
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [isLaboralExperienceModalVisible, setIsLaboralExperienceModalVisible] =
+    useState<boolean>(false);
+  const [isEducationModalVisible, setIsEducationModalVisible] =
+    useState<boolean>(false);
 
   const [skills, setSkills] = useState<Skill[]>([]);
   const [educations, setEducations] = useState<Education[]>([]);
@@ -104,6 +110,32 @@ export const Home = () => {
     setSelectedPosition(null);
   };
 
+  const handleOpenLaboralExperienceModal = () => {
+    setIsLaboralExperienceModalVisible(true);
+  };
+
+  const handleCloseLaboralExperienceModal = () => {
+    setIsLaboralExperienceModalVisible(false);
+  };
+
+  const handleOpenEducationModal = () => {
+    setIsEducationModalVisible(true);
+  };
+
+  const handleCloseEducationModal = () => {
+    setIsEducationModalVisible(false);
+  };
+
+  const handleLaboralExperienceSubmit = (values: any) => {
+    console.log("New Laboral Experience:", values);
+    setIsLaboralExperienceModalVisible(false);
+  };
+
+  const handleEducationSubmit = (values: any) => {
+    console.log("New Education:", values);
+    setIsEducationModalVisible(false);
+  };
+
   const handleSubmit = (values: any) => {
     console.log("Updated Position:", { ...selectedPosition, ...values });
     handleCloseModal();
@@ -120,7 +152,12 @@ export const Home = () => {
   return (
     <ColorModeContextProvider>
       <Layout style={{ minHeight: "100vh", background: "#1f1f1f" }}>
-        <HeaderSection loading={loading} onRefresh={handleRefresh} />
+        <HeaderSection
+          loading={loading}
+          onRefresh={handleRefresh}
+          onAddEducation={handleOpenEducationModal}
+          onAddLaboralExperience={handleOpenLaboralExperienceModal}
+        />
         <Content
           ref={contentRef}
           onScroll={handleScroll}
@@ -153,6 +190,24 @@ export const Home = () => {
           educations={educations}
           laboralExperiences={laboralExperiences}
         />
+
+        {isLaboralExperienceModalVisible && (
+          <LaboralExperienceModal
+            loading={loading}
+            visible={isLaboralExperienceModalVisible}
+            onClose={handleCloseLaboralExperienceModal}
+            onSubmit={handleLaboralExperienceSubmit}
+          />
+        )}
+
+        {isEducationModalVisible && (
+          <EducationModal
+            loading={loading}
+            visible={isEducationModalVisible}
+            onClose={handleCloseEducationModal}
+            onSubmit={handleEducationSubmit}
+          />
+        )}
       </Layout>
     </ColorModeContextProvider>
   );

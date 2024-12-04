@@ -7,11 +7,15 @@ const { Title } = Typography;
 interface HeaderSectionProps {
   loading: boolean;
   onRefresh: () => void;
+  onAddEducation: () => void;
+  onAddLaboralExperience: () => void;
 }
 
 export const HeaderSection: React.FC<HeaderSectionProps> = ({
   loading,
   onRefresh,
+  onAddEducation,
+  onAddLaboralExperience,
 }) => {
   const { mutate: logout } = useLogout();
 
@@ -47,6 +51,30 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
           }}
         >
           Refresh
+        </Button>
+
+        <Button
+          type="default"
+          onClick={onAddLaboralExperience}
+          style={{
+            background: "#1d4ed8",
+            color: "#fff",
+            borderColor: "#1d4ed8",
+          }}
+        >
+          Add Experience
+        </Button>
+
+        <Button
+          type="default"
+          onClick={onAddEducation}
+          style={{
+            background: "#047857",
+            color: "#fff",
+            borderColor: "#047857",
+          }}
+        >
+          Add Education
         </Button>
 
         <Button
