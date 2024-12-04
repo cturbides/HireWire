@@ -1,8 +1,9 @@
-import { Layout } from "antd";
+import { Layout, Modal, Button, Form, Input, Typography } from "antd";
 import { useEffect, useState, useRef } from "react";
 import { ColorModeContextProvider } from "../../contexts/color-mode";
 import { PositionsList } from "./components/PositionList";
-import { HeaderSection } from "./components/headerSection";
+import { HeaderSection } from "./components/HeaderSection";
+import { PositionModal } from "./components/PositionModal";
 import {
   Position,
   PaginationMeta,
@@ -19,6 +20,10 @@ export const Home = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [refreshKey, setRefreshKey] = useState<number>(0);
+  const [selectedPosition, setSelectedPosition] = useState<Position | null>(
+    null
+  );
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
   const contentRef = useRef<HTMLDivElement | null>(null);
 
@@ -57,6 +62,21 @@ export const Home = () => {
     setRefreshKey((prevKey) => prevKey + 1);
   };
 
+  const handleOpenModal = (position: Position) => {
+    setSelectedPosition(position);
+    setIsModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalVisible(false);
+    setSelectedPosition(null);
+  };
+
+  const handleSubmit = (values: any) => {
+    console.log("Updated Position:", { ...selectedPosition, ...values });
+    handleCloseModal();
+  };
+
   useEffect(() => {
     document.title = "HireWire Client - Home";
   }, []);
@@ -83,8 +103,20 @@ export const Home = () => {
             height: "calc(100vh - 64px)",
           }}
         >
-          <PositionsList positions={positions} loading={loading} />
+          <PositionsList
+            positions={positions}
+            loading={loading}
+            onEdit={handleOpenModal}
+          />
         </Content>
+
+        <PositionModal
+          visible={isModalVisible}
+          onClose={handleCloseModal}
+          onSubmit={handleSubmit}
+          position={selectedPosition}
+          loading={loading}
+        />
       </Layout>
     </ColorModeContextProvider>
   );

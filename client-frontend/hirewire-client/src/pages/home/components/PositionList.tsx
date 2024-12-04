@@ -7,11 +7,13 @@ const { Title } = Typography;
 interface PositionsListProps {
   loading: boolean;
   positions: Position[];
+  onEdit: (position: Position) => void;
 }
 
 export const PositionsList: React.FC<PositionsListProps> = ({
   positions,
   loading,
+  onEdit,
 }) => {
   return (
     <>
@@ -28,8 +30,9 @@ export const PositionsList: React.FC<PositionsListProps> = ({
 
       {positions.map((position, index) => (
         <a
-          key={index}
           href="#"
+          key={index}
+          onClick={() => onEdit(position)}
           style={{
             color: "#1890ff",
             cursor: "pointer",

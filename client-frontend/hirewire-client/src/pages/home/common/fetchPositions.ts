@@ -1,6 +1,7 @@
 import { TOKEN_KEY } from "../../../authProvider";
 
 export interface Position {
+  id: string;
   name: string | null;
   state: boolean;
   minSalary: number;
