@@ -10,8 +10,9 @@ import type { ApplicantPageOptionsDto } from './dtos/applicant-page-options.dto'
 import { ApplicantNotFoundException } from './exceptions/applicant-not-found.exception';
 import { ApplicantEntity } from './applicant.entity';
 import { CreateApplicantDto } from './dtos/create-applicant.dto';
+import { OldCreateApplicantDto } from './dtos/old-create-applicant.dto';
 import type { UpdateApplicantDto } from './dtos/update-applicant.dto';
-import { InjectRepository } from '@nestjs/typeorm'
+import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { UserService } from '../user/user.service';
 import { PositionService } from '../position/position.service';
@@ -45,14 +46,21 @@ export class ApplicantService {
     private laboralExperienceRepository: Repository<LaboralExperienceEntity>,
     @InjectRepository(EducationEntity)
     private educationRepository: Repository<EducationEntity>,
-  ) { }
+  ) {}
 
   @Transactional()
-  async createApplicant(user: UserDto, createApplicantDto: CreateApplicantDto): Promise<ApplicantEntity> {
+  async createApplicant(
+    user: UserDto,
+    createApplicantDto: CreateApplicantDto,
+  ): Promise<ApplicantEntity> {
     this.logger.log(`applicant --> ${JSON.stringify(createApplicantDto)}`);
 
-    const foundUser = await this.userService.getUser(createApplicantDto.userId as Uuid);
-    const position = await this.positionService.getSinglePosition(createApplicantDto.positionId as Uuid);
+    const foundUser = await this.userService.getUser(
+      createApplicantDto.userId as Uuid,
+    );
+    const position = await this.positionService.getSinglePosition(
+      createApplicantDto.positionId as Uuid,
+    );
 
     if (!foundUser.state) {
       throw new UserIsDisabledException();
@@ -78,31 +86,48 @@ export class ApplicantService {
       throw new SalaryIsLessThanMinSalaryException();
     }
 
-    const skills = await this.skillRepository.findBy({ id: In(createApplicantDto.skillIds) });
-    const laboralExperiences = await this.laboralExperienceRepository.findBy({ id: In(createApplicantDto.laboralExperienceIds), user: { id: In([createApplicantDto.userId])} });
-    const educations = await this.educationRepository.findBy({ id: In(createApplicantDto.educationIds), user: { id: In([createApplicantDto.userId]) } });
+    const skills = await this.skillRepository.findBy({
+      id: In(createApplicantDto.skillIds),
+    });
+    const laboralExperiences = await this.laboralExperienceRepository.findBy({
+      id: In(createApplicantDto.laboralExperienceIds),
+      user: { id: In([createApplicantDto.userId]) },
+    });
+    const educations = await this.educationRepository.findBy({
+      id: In(createApplicantDto.educationIds),
+      user: { id: In([createApplicantDto.userId]) },
+    });
 
     this.logger.log(`skills --> ${JSON.stringify(skills)}`);
-    this.logger.log(`laboralExperiences --> ${JSON.stringify(laboralExperiences)}`);
+    this.logger.log(
+      `laboralExperiences --> ${JSON.stringify(laboralExperiences)}`,
+    );
     this.logger.log(`educations --> ${JSON.stringify(educations)}`);
 
-    const applicant = await this.commandBus.execute<CreateApplicantCommand, ApplicantEntity>(
+    const applicant = await this.commandBus.execute<
+      CreateApplicantCommand,
+      ApplicantEntity
+    >(
       new CreateApplicantCommand({
         desiredSalary: createApplicantDto.desiredSalary,
         userId: createApplicantDto.userId,
         positionId: createApplicantDto.positionId,
         recommendedBy: createApplicantDto.recommendedBy,
-        skillIds: skills.map(skill => skill.id),
-        laboralExperienceIds: laboralExperiences.map(exp => exp.id),
-        educationIds: educations.map(edu => edu.id),
+        skillIds: skills.map((skill) => skill.id),
+        laboralExperienceIds: laboralExperiences.map((exp) => exp.id),
+        educationIds: educations.map((edu) => edu.id),
       }),
     );
 
     this.logger.log(`Applicant ---> ${JSON.stringify(applicant)}`);
+
     return applicant;
   }
 
-  async getAllEnabledApplicantByUserId(user: UserDto, applicantPageOptionsDto: ApplicantPageOptionsDto): Promise<PageDto<ApplicantDto>> {
+  async getAllEnabledApplicantByUserId(
+    user: UserDto,
+    applicantPageOptionsDto: ApplicantPageOptionsDto,
+  ): Promise<PageDto<ApplicantDto>> {
     const queryBuilder = this.applicantRepository
       .createQueryBuilder('applicant')
       .leftJoinAndSelect('applicant.user', 'user')
@@ -110,14 +135,16 @@ export class ApplicantService {
       .where('applicant.state = :state', { state: true })
       .andWhere('applicant.user.id = :userId', { userId: user.id });
 
-    const [items, pageMetaDto] = await queryBuilder.paginate(applicantPageOptionsDto);
+    const [items, pageMetaDto] = await queryBuilder.paginate(
+      applicantPageOptionsDto,
+    );
 
     return items.toPageDto(pageMetaDto);
   }
 
   async getAllApplicantByUserId(
     user: UserDto,
-    userId: string
+    userId: string,
   ): Promise<PageDto<ApplicantDto>> {
     if (user.id !== userId && user.role !== RoleType.ADMIN) {
       throw new InvalidUserIdException();
@@ -129,7 +156,13 @@ export class ApplicantService {
       .leftJoinAndSelect('applicant.position', 'position')
       .where('applicant.user.id = :userId', { userId: userId });
 
-    const [items, pageMetaDto] = await queryBuilder.paginate({ page: 1, take: 100000, skip: 0, order: Order.ASC, sort: '' });
+    const [items, pageMetaDto] = await queryBuilder.paginate({
+      page: 1,
+      take: 100000,
+      skip: 0,
+      order: Order.ASC,
+      sort: '',
+    });
 
     return items.toPageDto(pageMetaDto);
   }
@@ -144,7 +177,9 @@ export class ApplicantService {
       .leftJoinAndSelect('applicant.position', 'position')
       .where('applicant.user.id = :userId', { userId: user.id });
 
-    const [items, pageMetaDto] = await queryBuilder.paginate(applicantPageOptionsDto);
+    const [items, pageMetaDto] = await queryBuilder.paginate(
+      applicantPageOptionsDto,
+    );
 
     return items.toPageDto(pageMetaDto);
   }
@@ -157,7 +192,9 @@ export class ApplicantService {
       .leftJoinAndSelect('applicant.user', 'user')
       .leftJoinAndSelect('applicant.position', 'position');
 
-    const [items, pageMetaDto] = await queryBuilder.paginate(applicantPageOptionsDto);
+    const [items, pageMetaDto] = await queryBuilder.paginate(
+      applicantPageOptionsDto,
+    );
 
     return items.toPageDto(pageMetaDto);
   }
@@ -188,7 +225,10 @@ export class ApplicantService {
     user: UserDto,
     updateApplicantDto: UpdateApplicantDto,
   ): Promise<void> {
-    const applicantEntity = await this.applicantRepository.findOne({ where: { id }, relations: ['user', 'position'] });
+    const applicantEntity = await this.applicantRepository.findOne({
+      where: { id },
+      relations: ['user', 'position'],
+    });
 
     if (!applicantEntity) {
       throw new ApplicantNotFoundException();
@@ -203,8 +243,13 @@ export class ApplicantService {
 
     let position: PositionDto = applicantEntity.position.toDto();
 
-    if (updateApplicantDto.userId && updateApplicantDto.userId !== applicantEntity.user.id) {
-      const user = await this.userService.getUser(updateApplicantDto.userId as Uuid);
+    if (
+      updateApplicantDto.userId &&
+      updateApplicantDto.userId !== applicantEntity.user.id
+    ) {
+      const user = await this.userService.getUser(
+        updateApplicantDto.userId as Uuid,
+      );
 
       if (!user.state) {
         throw new UserIsDisabledException();
@@ -213,8 +258,13 @@ export class ApplicantService {
       userId = user.id;
     }
 
-    if (updateApplicantDto.positionId && updateApplicantDto.positionId !== positionId) {
-      position = await this.positionService.getSinglePosition(updateApplicantDto.positionId as Uuid);
+    if (
+      updateApplicantDto.positionId &&
+      updateApplicantDto.positionId !== positionId
+    ) {
+      position = await this.positionService.getSinglePosition(
+        updateApplicantDto.positionId as Uuid,
+      );
 
       if (!position.state) {
         throw new PositionIsDisabledException();
@@ -235,25 +285,37 @@ export class ApplicantService {
       positionId = position.id;
     }
 
-    if (updateApplicantDto.desiredSalary && updateApplicantDto.desiredSalary > position.maxSalary) {
+    if (
+      updateApplicantDto.desiredSalary &&
+      updateApplicantDto.desiredSalary > position.maxSalary
+    ) {
       throw new SalaryIsBiggerThanMaxSalaryException();
     }
 
-    if (updateApplicantDto.desiredSalary && updateApplicantDto.desiredSalary < position.minSalary) {
+    if (
+      updateApplicantDto.desiredSalary &&
+      updateApplicantDto.desiredSalary < position.minSalary
+    ) {
       throw new SalaryIsLessThanMinSalaryException();
     }
 
     // Actualizar skills, experiencias laborales y capacitaciones educativas si están presentes
     const skills = updateApplicantDto.skillIds
-      ? await this.skillRepository.findBy({ id: In(updateApplicantDto.skillIds) })
+      ? await this.skillRepository.findBy({
+          id: In(updateApplicantDto.skillIds),
+        })
       : applicantEntity.skills;
 
     const laboralExperiences = updateApplicantDto.laboralExperienceIds
-      ? await this.laboralExperienceRepository.findBy({ id: In(updateApplicantDto.laboralExperienceIds) })
+      ? await this.laboralExperienceRepository.findBy({
+          id: In(updateApplicantDto.laboralExperienceIds),
+        })
       : applicantEntity.laboralExperiences;
 
     const educations = updateApplicantDto.educationIds
-      ? await this.educationRepository.findBy({ id: In(updateApplicantDto.educationIds) })
+      ? await this.educationRepository.findBy({
+          id: In(updateApplicantDto.educationIds),
+        })
       : applicantEntity.educations;
 
     await this.applicantRepository.save({
@@ -316,10 +378,14 @@ export class ApplicantService {
     });
   }
 
-  async filterApplicants(applicantPageOptionsDto: ApplicantPageOptionsDto): Promise<PageDto<ApplicantDto>> {
+  async filterApplicants(
+    applicantPageOptionsDto: ApplicantPageOptionsDto,
+  ): Promise<PageDto<ApplicantDto>> {
     const { positionId, skillId, educationId } = applicantPageOptionsDto;
 
-    this.logger.log(`applicantsPageOptions --> ${JSON.stringify(applicantPageOptionsDto)}`);
+    this.logger.log(
+      `applicantsPageOptions --> ${JSON.stringify(applicantPageOptionsDto)}`,
+    );
 
     const queryBuilder = this.applicantRepository
       .createQueryBuilder('applicant')
@@ -327,7 +393,9 @@ export class ApplicantService {
       .leftJoinAndSelect('applicant.position', 'position');
 
     if (positionId) {
-      queryBuilder.andWhere('applicant.position.id = :positionId', { positionId });
+      queryBuilder.andWhere('applicant.position.id = :positionId', {
+        positionId,
+      });
     }
 
     if (skillId) {
@@ -338,9 +406,10 @@ export class ApplicantService {
       queryBuilder.andWhere('educations.id = :educationId', { educationId });
     }
 
-    const [items, pageMetaDto] = await queryBuilder.paginate(applicantPageOptionsDto);
+    const [items, pageMetaDto] = await queryBuilder.paginate(
+      applicantPageOptionsDto,
+    );
 
     return items.toPageDto(pageMetaDto);
   }
-
 }

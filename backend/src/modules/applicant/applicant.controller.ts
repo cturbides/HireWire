@@ -8,13 +8,14 @@ import {
   Post,
   Put,
   Query,
-  Logger
+  Logger,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
 import type { PageDto } from '../../common/dto/page.dto';
 import { Auth, AuthUser, UUIDParam } from '../../decorators';
 import { CreateApplicantDto } from './dtos/create-applicant.dto';
+import { OldCreateApplicantDto } from './dtos/old-create-applicant.dto';
 import type { ApplicantDto } from './dtos/applicant.dto';
 import { ApplicantPageOptionsDto } from './dtos/applicant-page-options.dto';
 import { UpdateApplicantDto } from './dtos/update-applicant.dto';
@@ -27,13 +28,34 @@ import { UserDto } from '../../modules/user/dtos/user.dto';
 export class ApplicantController {
   private logger: Logger = new Logger('ApplicantController');
 
-  constructor(private applicantService: ApplicantService) { }
+  constructor(private applicantService: ApplicantService) {}
 
   @Post()
   @Auth([RoleType.USER, RoleType.ADMIN])
   @HttpCode(HttpStatus.CREATED)
-  async createApplicant(@Body() createApplicantDto: CreateApplicantDto, @AuthUser() user: UserDto) {
-    const entity = await this.applicantService.createApplicant(user, createApplicantDto);
+  async createApplicant(
+    @Body() createApplicantDto: CreateApplicantDto,
+    @AuthUser() user: UserDto,
+  ) {
+    const entity = await this.applicantService.createApplicant(
+      user,
+      createApplicantDto,
+    );
+
+    return entity.toDto();
+  }
+
+  @Post('old/create')
+  @Auth([RoleType.USER, RoleType.ADMIN])
+  @HttpCode(HttpStatus.CREATED)
+  async oldCreateApplicant(
+    @AuthUser() user: UserDto,
+    @Body() oldCreateApplicantDto: OldCreateApplicantDto,
+  ) {
+    const entity = await this.applicantService.oldCreateApplicant(
+      user,
+      oldCreateApplicantDto,
+    );
 
     return entity.toDto();
   }
@@ -41,35 +63,55 @@ export class ApplicantController {
   @Get('available')
   @Auth([RoleType.USER, RoleType.ADMIN])
   @HttpCode(HttpStatus.OK)
-  getAllEnabledApplicantByUser(@AuthUser() user: UserDto, @Query() applicantPageOptionsDto: ApplicantPageOptionsDto): Promise<PageDto<ApplicantDto>> {
-    return this.applicantService.getAllEnabledApplicantByUserId(user, applicantPageOptionsDto);
+  getAllEnabledApplicantByUser(
+    @AuthUser() user: UserDto,
+    @Query() applicantPageOptionsDto: ApplicantPageOptionsDto,
+  ): Promise<PageDto<ApplicantDto>> {
+    return this.applicantService.getAllEnabledApplicantByUserId(
+      user,
+      applicantPageOptionsDto,
+    );
   }
 
   @Get(':userId')
   @Auth([RoleType.USER, RoleType.ADMIN])
   @HttpCode(HttpStatus.OK)
-  getAllApplicantsByUserId(@UUIDParam('userId') userId: Uuid, @AuthUser() user: UserDto): Promise<PageDto<ApplicantDto>> {
+  getAllApplicantsByUserId(
+    @UUIDParam('userId') userId: Uuid,
+    @AuthUser() user: UserDto,
+  ): Promise<PageDto<ApplicantDto>> {
     return this.applicantService.getAllApplicantByUserId(user, userId);
   }
 
   @Get('all')
   @Auth([RoleType.ADMIN], { public: true })
   @HttpCode(HttpStatus.OK)
-  getAllApplicantByUser(@AuthUser() user: UserDto, @Query() applicantPageOptionsDto: ApplicantPageOptionsDto): Promise<PageDto<ApplicantDto>> {
-    return this.applicantService.getAllApplicantByUser(user, applicantPageOptionsDto);
+  getAllApplicantByUser(
+    @AuthUser() user: UserDto,
+    @Query() applicantPageOptionsDto: ApplicantPageOptionsDto,
+  ): Promise<PageDto<ApplicantDto>> {
+    return this.applicantService.getAllApplicantByUser(
+      user,
+      applicantPageOptionsDto,
+    );
   }
 
   @Get()
   @Auth([RoleType.ADMIN], { public: false })
   @HttpCode(HttpStatus.OK)
-  getAllApplicant(@Query() applicantPageOptionsDto: ApplicantPageOptionsDto): Promise<PageDto<ApplicantDto>> {
+  getAllApplicant(
+    @Query() applicantPageOptionsDto: ApplicantPageOptionsDto,
+  ): Promise<PageDto<ApplicantDto>> {
     return this.applicantService.getAllApplicant(applicantPageOptionsDto);
   }
 
   @Get(':id')
   @Auth([RoleType.USER, RoleType.ADMIN])
   @HttpCode(HttpStatus.OK)
-  async getSingleApplicant(@UUIDParam('id') id: Uuid, @AuthUser() user: UserDto): Promise<ApplicantDto> {
+  async getSingleApplicant(
+    @UUIDParam('id') id: Uuid,
+    @AuthUser() user: UserDto,
+  ): Promise<ApplicantDto> {
     const entity = await this.applicantService.getSingleApplicant(id, user);
 
     return entity.toDto();
@@ -89,9 +131,7 @@ export class ApplicantController {
   @Post('activate/:id')
   @Auth([RoleType.ADMIN])
   @HttpCode(HttpStatus.ACCEPTED)
-  activateApplicant(
-    @UUIDParam('id') id: Uuid,
-  ): Promise<void> {
+  activateApplicant(@UUIDParam('id') id: Uuid): Promise<void> {
     return this.applicantService.activateApplicant(id);
   }
 

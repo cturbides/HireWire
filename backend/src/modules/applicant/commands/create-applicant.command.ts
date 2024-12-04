@@ -10,18 +10,17 @@ import { LaboralExperienceEntity } from '../../laboral-experience/laboral-experi
 import { EducationEntity } from '../../education/education.entity';
 
 export class CreateApplicantCommand implements ICommand {
-  constructor(
-    public readonly createApplicantDto: CreateApplicantDto,
-  ) {}
+  constructor(public readonly createApplicantDto: CreateApplicantDto) {}
 }
 
 @CommandHandler(CreateApplicantCommand)
 export class CreateApplicantHandler
-  implements ICommandHandler<CreateApplicantCommand, ApplicantEntity> {
+  implements ICommandHandler<CreateApplicantCommand, ApplicantEntity>
+{
   constructor(
     @InjectRepository(ApplicantEntity)
     private applicantRepository: Repository<ApplicantEntity>,
-    
+
     @InjectRepository(SkillEntity)
     private skillRepository: Repository<SkillEntity>,
 
@@ -35,10 +34,6 @@ export class CreateApplicantHandler
   async execute(command: CreateApplicantCommand): Promise<ApplicantEntity> {
     const { createApplicantDto } = command;
 
-    const skills = await this.skillRepository.findBy({ id: In(createApplicantDto.skillIds) });
-    const laboralExperiences = await this.laboralExperienceRepository.findBy({ id: In(createApplicantDto.laboralExperienceIds), user: { id: In([createApplicantDto.userId])} });
-    const educations = await this.educationRepository.findBy({ id: In(createApplicantDto.educationIds), user: { id: In([createApplicantDto.userId]) } });
-
     const applicantEntity = this.applicantRepository.create({
       user: {
         id: createApplicantDto.userId,
@@ -48,9 +43,9 @@ export class CreateApplicantHandler
       },
       recommendedBy: createApplicantDto.recommendedBy,
       desiredSalary: createApplicantDto.desiredSalary,
-      skills: skills,
-      laboralExperiences: laboralExperiences,
-      educations: educations,
+      skills: createApplicantDto.skillIds,
+      educations: createApplicantDto.educationIds,
+      laboralExperiences: createApplicantDto.laboralExperienceIds,
     });
 
     await this.applicantRepository.save(applicantEntity);
