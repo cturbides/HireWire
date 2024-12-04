@@ -1,4 +1,5 @@
 import React from "react";
+import { formatCurrency } from "../../../utils/formatCurrency";
 import { Modal, Form, Input, Button, Select, Typography, Divider } from "antd";
 import { Skill, Position, LaboralExperience, Education } from "../common/types";
 
@@ -39,7 +40,8 @@ export const PositionModal: React.FC<ApplicantModalProps> = ({
         <>
           <Title level={4}>{position.name}</Title>
           <Paragraph>
-            Salary Range: {position.minSalary} - {position.maxSalary}
+            Salary Range: {formatCurrency(position.minSalary)} -{" "}
+            {formatCurrency(position.maxSalary)}
           </Paragraph>
           <Paragraph>
             Risk Level: {position.riskLevel} |{" "}

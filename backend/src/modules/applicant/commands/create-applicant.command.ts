@@ -34,6 +34,16 @@ export class CreateApplicantHandler
   async execute(command: CreateApplicantCommand): Promise<ApplicantEntity> {
     const { createApplicantDto } = command;
 
+    const skills = await this.skillRepository.findBy({
+      id: In(createApplicantDto.skillIds),
+    });
+    const laboralExperiences = await this.laboralExperienceRepository.findBy({
+      id: In(createApplicantDto.laboralExperienceIds),
+    });
+    const educations = await this.educationRepository.findBy({
+      id: In(createApplicantDto.educationIds),
+    });
+
     const applicantEntity = this.applicantRepository.create({
       user: {
         id: createApplicantDto.userId,
@@ -43,9 +53,9 @@ export class CreateApplicantHandler
       },
       recommendedBy: createApplicantDto.recommendedBy,
       desiredSalary: createApplicantDto.desiredSalary,
-      skills: createApplicantDto.skillIds,
-      educations: createApplicantDto.educationIds,
-      laboralExperiences: createApplicantDto.laboralExperienceIds,
+      skills,
+      educations,
+      laboralExperiences,
     });
 
     await this.applicantRepository.save(applicantEntity);

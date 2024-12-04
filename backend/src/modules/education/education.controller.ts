@@ -8,7 +8,7 @@ import {
   Post,
   Put,
   Query,
-  Logger
+  Logger,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
@@ -32,8 +32,14 @@ export class EducationController {
   @Post()
   @Auth([])
   @HttpCode(HttpStatus.CREATED)
-  async createEducation(@AuthUser() user: UserDto, @Body() createEducationDto: CreateEducationDto) {
-    const entity = await this.educationService.createEducation(user, createEducationDto);
+  async createEducation(
+    @AuthUser() user: UserDto,
+    @Body() createEducationDto: CreateEducationDto,
+  ) {
+    const entity = await this.educationService.createEducation(
+      user,
+      createEducationDto,
+    );
 
     return entity.toDto();
   }
@@ -41,21 +47,47 @@ export class EducationController {
   @Get()
   @Auth([RoleType.ADMIN], { public: true })
   @HttpCode(HttpStatus.OK)
-  getAllEducation(@Query() educationPageOptionsDto: EducationPageOptionsDto): Promise<PageDto<EducationDto>> {
+  getAllEducation(
+    @Query() educationPageOptionsDto: EducationPageOptionsDto,
+  ): Promise<PageDto<EducationDto>> {
     return this.educationService.getAllEducation(educationPageOptionsDto);
   }
 
-  @Get('enabled')
+  @Get('enabled/:userId')
   @Auth([], { public: true })
   @HttpCode(HttpStatus.OK)
-  getEnabledEducation(@AuthUser() user: UserDto, @Query() educationPageOptionsDto: EducationPageOptionsDto): Promise<PageDto<EducationDto>> {
-    return this.educationService.getAllEnabledEducation(user, educationPageOptionsDto);
+  getEnabledEducationByUserId(
+    @AuthUser() user: UserDto,
+    @UUIDParam('userId') userId: Uuid,
+    @Query() educationPageOptionsDto: EducationPageOptionsDto,
+  ): Promise<PageDto<EducationDto>> {
+    return this.educationService.getAllEnabledEducationByUserId(
+      user,
+      userId,
+      educationPageOptionsDto,
+    );
+  }
+
+  @Get('enabled')
+  @Auth([RoleType.ADMIN, RoleType.USER])
+  @HttpCode(HttpStatus.OK)
+  getEnabledEducation(
+    @AuthUser() user: UserDto,
+    @Query() educationPageOptionsDto: EducationPageOptionsDto,
+  ): Promise<PageDto<EducationDto>> {
+    return this.educationService.getAllEnabledEducation(
+      user,
+      educationPageOptionsDto,
+    );
   }
 
   @Get(':id')
   @Auth([])
   @HttpCode(HttpStatus.OK)
-  async getSingleEducation(@AuthUser() user: UserDto, @UUIDParam('id') id: Uuid): Promise<EducationDto> {
+  async getSingleEducation(
+    @AuthUser() user: UserDto,
+    @UUIDParam('id') id: Uuid,
+  ): Promise<EducationDto> {
     const entity = await this.educationService.getSingleEducation(user, id);
 
     return entity.toDto();
@@ -75,16 +107,17 @@ export class EducationController {
   @Post('activate/:id')
   @Auth([RoleType.ADMIN])
   @HttpCode(HttpStatus.ACCEPTED)
-  activateEducation(
-    @UUIDParam('id') id: Uuid,
-  ): Promise<void> {
+  activateEducation(@UUIDParam('id') id: Uuid): Promise<void> {
     return this.educationService.activateEducation(id);
   }
 
   @Delete(':id')
   @Auth([])
   @HttpCode(HttpStatus.ACCEPTED)
-  async deleteEducation(@AuthUser() user: UserDto, @UUIDParam('id') id: Uuid): Promise<void> {
+  async deleteEducation(
+    @AuthUser() user: UserDto,
+    @UUIDParam('id') id: Uuid,
+  ): Promise<void> {
     this.logger.log(`Starting to delete Education with id '${id}'.`);
     await this.educationService.deleteEducation(id, user);
   }

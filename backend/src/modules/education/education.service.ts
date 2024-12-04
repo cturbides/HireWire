@@ -10,7 +10,7 @@ import { EducationNotFoundException } from './exceptions/education-not-found.exc
 import { EducationEntity } from './education.entity';
 import { CreateEducationDto } from './dtos/create-education.dto';
 import type { UpdateEducationDto } from './dtos/update-education.dto';
-import { InjectRepository } from '@nestjs/typeorm'
+import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserService } from '../user/user.service';
 import { UserIsDisabledException } from './exceptions/user-is-disabled.exception';
@@ -25,11 +25,16 @@ export class EducationService {
     private userService: UserService,
     @InjectRepository(EducationEntity)
     private educationRepository: Repository<EducationEntity>,
-  ) { }
+  ) {}
 
   @Transactional()
-  async createEducation(userDto: UserDto, createEducationDto: CreateEducationDto): Promise<EducationEntity> {
-    const user = await this.userService.getUser(createEducationDto.userId as Uuid);
+  async createEducation(
+    userDto: UserDto,
+    createEducationDto: CreateEducationDto,
+  ): Promise<EducationEntity> {
+    const user = await this.userService.getUser(
+      createEducationDto.userId as Uuid,
+    );
 
     if (!user.state) {
       throw new UserIsDisabledException();
@@ -44,16 +49,51 @@ export class EducationService {
     );
   }
 
-  async getAllEnabledEducation(user: UserDto, educationPageOptionsDto: EducationPageOptionsDto): Promise<PageDto<EducationDto>> {
+  async getAllEnabledEducation(
+    user: UserDto,
+    educationPageOptionsDto: EducationPageOptionsDto,
+  ): Promise<PageDto<EducationDto>> {
     const queryBuilder = this.educationRepository
       .createQueryBuilder('education')
       .leftJoinAndSelect('education.user', 'user')
       .where('education.state = :state', { state: true })
       .andWhere('applicant.user.id = :userId', { userId: user.id });
 
-    queryBuilder.orderBy(`education.${educationPageOptionsDto.sort}`, educationPageOptionsDto.order);
+    queryBuilder.orderBy(
+      `education.${educationPageOptionsDto.sort}`,
+      educationPageOptionsDto.order,
+    );
 
-    const [items, pageMetaDto] = await queryBuilder.paginate(educationPageOptionsDto);
+    const [items, pageMetaDto] = await queryBuilder.paginate(
+      educationPageOptionsDto,
+    );
+
+    return items.toPageDto(pageMetaDto);
+  }
+
+  async getAllEnabledEducationByUserId(
+    user: UserDto,
+    userId: string,
+    educationPageOptionsDto: EducationPageOptionsDto,
+  ): Promise<PageDto<EducationDto>> {
+    if (user.id !== userId && user.role !== RoleType.ADMIN) {
+      throw new InvalidUserIdException();
+    }
+
+    const queryBuilder = this.educationRepository
+      .createQueryBuilder('education')
+      .leftJoinAndSelect('education.user', 'user')
+      .where('education.state = :state', { state: true })
+      .andWhere('education.user.id = :userId', { userId });
+
+    queryBuilder.orderBy(
+      `education.${educationPageOptionsDto.sort}`,
+      educationPageOptionsDto.order,
+    );
+
+    const [items, pageMetaDto] = await queryBuilder.paginate(
+      educationPageOptionsDto,
+    );
 
     return items.toPageDto(pageMetaDto);
   }
@@ -65,9 +105,14 @@ export class EducationService {
       .createQueryBuilder('education')
       .leftJoinAndSelect('education.user', 'user');
 
-    queryBuilder.orderBy(`education.${educationPageOptionsDto.sort}`, educationPageOptionsDto.order);
+    queryBuilder.orderBy(
+      `education.${educationPageOptionsDto.sort}`,
+      educationPageOptionsDto.order,
+    );
 
-    const [items, pageMetaDto] = await queryBuilder.paginate(educationPageOptionsDto);
+    const [items, pageMetaDto] = await queryBuilder.paginate(
+      educationPageOptionsDto,
+    );
 
     return items.toPageDto(pageMetaDto);
   }
@@ -118,8 +163,10 @@ export class EducationService {
         id: user.id,
       },
       id: educationEntity.id,
-      startDate: new Date(updateEducationDto.startDate || educationEntity.startDate),
-      endDate: new Date(updateEducationDto.endDate || educationEntity.endDate)
+      startDate: new Date(
+        updateEducationDto.startDate || educationEntity.startDate,
+      ),
+      endDate: new Date(updateEducationDto.endDate || educationEntity.endDate),
     });
   }
 

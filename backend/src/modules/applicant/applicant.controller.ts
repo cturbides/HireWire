@@ -15,7 +15,6 @@ import { ApiTags } from '@nestjs/swagger';
 import type { PageDto } from '../../common/dto/page.dto';
 import { Auth, AuthUser, UUIDParam } from '../../decorators';
 import { CreateApplicantDto } from './dtos/create-applicant.dto';
-import { OldCreateApplicantDto } from './dtos/old-create-applicant.dto';
 import type { ApplicantDto } from './dtos/applicant.dto';
 import { ApplicantPageOptionsDto } from './dtos/applicant-page-options.dto';
 import { UpdateApplicantDto } from './dtos/update-applicant.dto';
@@ -40,21 +39,6 @@ export class ApplicantController {
     const entity = await this.applicantService.createApplicant(
       user,
       createApplicantDto,
-    );
-
-    return entity.toDto();
-  }
-
-  @Post('old/create')
-  @Auth([RoleType.USER, RoleType.ADMIN])
-  @HttpCode(HttpStatus.CREATED)
-  async oldCreateApplicant(
-    @AuthUser() user: UserDto,
-    @Body() oldCreateApplicantDto: OldCreateApplicantDto,
-  ) {
-    const entity = await this.applicantService.oldCreateApplicant(
-      user,
-      oldCreateApplicantDto,
     );
 
     return entity.toDto();

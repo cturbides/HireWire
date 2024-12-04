@@ -6,6 +6,7 @@ const { Title } = Typography;
 
 interface PositionsListProps {
   loading: boolean;
+  isError: boolean;
   positions: Position[];
   onEdit: (position: Position) => void;
 }
@@ -13,6 +14,7 @@ interface PositionsListProps {
 export const PositionsList: React.FC<PositionsListProps> = ({
   positions,
   loading,
+  isError,
   onEdit,
 }) => {
   return (
@@ -61,6 +63,14 @@ export const PositionsList: React.FC<PositionsListProps> = ({
           style={{ color: "#fff", marginTop: "16px", textAlign: "center" }}
         >
           Loading more positions...
+        </Typography.Paragraph>
+      )}
+
+      {isError && (
+        <Typography.Paragraph
+          style={{ color: "#fff", marginTop: "16px", textAlign: "center" }}
+        >
+          An exception happened. Try again!
         </Typography.Paragraph>
       )}
     </>

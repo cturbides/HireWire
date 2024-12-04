@@ -5,6 +5,9 @@ import { PositionsList } from "./components/PositionList";
 import { HeaderSection } from "./components/HeaderSection";
 import { PositionModal } from "./components/PositionModal";
 import { Skill, Position, LaboralExperience, Education } from "./common/types";
+import { fetchSkills } from "./common/fetchSkills";
+import { fetchEducation } from "./common/fetchEducation";
+import { fetchLaboralExperiences } from "./common/fetchLaboralExperiences";
 import {
   PaginationMeta,
   fetchAvailablePositions,
@@ -18,6 +21,7 @@ export const Home = () => {
     null
   );
   const [loading, setLoading] = useState<boolean>(false);
+  const [isError, setIsError] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [refreshKey, setRefreshKey] = useState<number>(0);
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(
@@ -36,13 +40,21 @@ export const Home = () => {
   const getPositions = async (page: number) => {
     if (loading) return;
 
+    setIsError(false);
     setLoading(true);
     try {
       const { data, meta } = await fetchAvailablePositions(page, 10);
+      const { data: skills } = await fetchSkills();
+      const { data: education } = await fetchEducation();
+      const { data: laboralExperiences } = await fetchLaboralExperiences();
 
+      setSkills(skills);
+      setEducations(education);
+      setLaboralExperiences(laboralExperiences);
       setPositions((prev) => (page === 1 ? data : [...prev, ...data]));
       setPaginationMeta(meta);
     } catch (error) {
+      setIsError(true);
       console.error("Error fetching positions:", error);
     } finally {
       setLoading(false);
@@ -65,6 +77,7 @@ export const Home = () => {
   const handleRefresh = () => {
     setCurrentPage(1);
     setPositions([]);
+    setIsError(false);
     setRefreshKey((prevKey) => prevKey + 1);
   };
 
@@ -113,6 +126,7 @@ export const Home = () => {
             positions={positions}
             loading={loading}
             onEdit={handleOpenModal}
+            isError={isError}
           />
         </Content>
 

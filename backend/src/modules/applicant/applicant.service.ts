@@ -10,7 +10,6 @@ import type { ApplicantPageOptionsDto } from './dtos/applicant-page-options.dto'
 import { ApplicantNotFoundException } from './exceptions/applicant-not-found.exception';
 import { ApplicantEntity } from './applicant.entity';
 import { CreateApplicantDto } from './dtos/create-applicant.dto';
-import { OldCreateApplicantDto } from './dtos/old-create-applicant.dto';
 import type { UpdateApplicantDto } from './dtos/update-applicant.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
