@@ -62,26 +62,50 @@ export class ApplicantService {
     );
 
     if (!foundUser.state) {
+      this.logger.error(
+        `User found with id '${user.id}' has an invalid state: ${foundUser.state}`,
+      );
+
       throw new UserIsDisabledException();
     }
 
     if (foundUser.id !== user.id && user.role !== RoleType.ADMIN) {
+      this.logger.error(
+        `User found with id '${foundUser.id}' has a different id than request-sent user '${user.id}'`,
+      );
+
       throw new InvalidUserIdTryingToCreateApplicantException();
     }
 
     if (!position.state) {
+      this.logger.error(
+        `Position found with id '${position.id}' has an invalid state: ${position.state}`,
+      );
+
       throw new PositionIsDisabledException();
     }
 
     if (!position.available) {
+      this.logger.error(
+        `Position found with id '${position.id}' has is not available: ${position.available}`,
+      );
+
       throw new PositionIsNotAvailableException();
     }
 
     if (createApplicantDto.desiredSalary > position.maxSalary) {
+      this.logger.error(
+        `Receive salary '${createApplicantDto.desiredSalary}' is bigger than maxSalary '${position.maxSalary}'.`,
+      );
+
       throw new SalaryIsBiggerThanMaxSalaryException();
     }
 
     if (createApplicantDto.desiredSalary < position.minSalary) {
+      this.logger.error(
+        `Receive salary '${createApplicantDto.desiredSalary}' is less than minSalary '${position.minSalary}'.`,
+      );
+
       throw new SalaryIsLessThanMinSalaryException();
     }
 
@@ -97,11 +121,11 @@ export class ApplicantService {
       user: { id: In([createApplicantDto.userId]) },
     });
 
-    this.logger.log(`skills --> ${JSON.stringify(skills)}`);
-    this.logger.log(
+    this.logger.debug(`skills --> ${JSON.stringify(skills)}`);
+    this.logger.debug(
       `laboralExperiences --> ${JSON.stringify(laboralExperiences)}`,
     );
-    this.logger.log(`educations --> ${JSON.stringify(educations)}`);
+    this.logger.debug(`educations --> ${JSON.stringify(educations)}`);
 
     const applicant = await this.commandBus.execute<
       CreateApplicantCommand,

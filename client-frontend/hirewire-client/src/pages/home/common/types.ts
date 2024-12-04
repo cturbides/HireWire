@@ -46,3 +46,13 @@ export interface Position {
   available: boolean;
   description: string | null;
 }
+
+export interface CreateApplicantDto {
+  userId: string;
+  skillIds: string[];
+  positionId: string;
+  desiredSalary: number;
+  recommendedBy: string;
+  educationIds: string[];
+  laboralExperienceIds: string[];
+}

@@ -10,6 +10,7 @@ import { Skill, Position, LaboralExperience, Education } from "./common/types";
 import { fetchSkills } from "./common/fetchSkills";
 import { fetchEducation } from "./common/fetchEducation";
 import { saveEducation } from "./common/saveEducation";
+import { saveApplicant } from "./common/saveApplicant";
 import { saveLaboralExperience } from "./common/saveLaboralExperience";
 import { fetchLaboralExperiences } from "./common/fetchLaboralExperiences";
 import {
@@ -138,7 +139,6 @@ export const Home = () => {
     } catch (error) {
       console.error("Error creating laboral experience:", error);
     } finally {
-      setIsLaboralExperienceModalVisible(false);
       handleRefresh();
     }
   };
@@ -152,14 +152,23 @@ export const Home = () => {
     } catch (error) {
       console.error("Error creating Education:", error);
     } finally {
-      setIsEducationModalVisible(false);
       handleRefresh();
     }
   };
 
-  const handleSubmit = (values: any) => {
-    console.log("Updated Position:", { ...selectedPosition, ...values });
-    handleCloseModal();
+  const handleSubmit = async (values: any) => {
+    const applicant = { positionId: selectedPosition?.id, ...values };
+
+    console.log("Created Applicant:", applicant);
+    try {
+      const response = await saveApplicant(applicant);
+      console.log("Applicant created successfully:", response);
+      handleCloseModal();
+    } catch (error) {
+      console.error("Error creating Education:", error);
+    } finally {
+      //handleRefresh();
+    }
   };
 
   useEffect(() => {

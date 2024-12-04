@@ -1,4 +1,5 @@
 import React from "react";
+import { formatDate } from "../../../utils/formatDate";
 import { formatCurrency } from "../../../utils/formatCurrency";
 import { Modal, Form, Input, Button, Select, Typography, Divider } from "antd";
 import { Skill, Position, LaboralExperience, Education } from "../common/types";
@@ -112,7 +113,9 @@ export const PositionModal: React.FC<ApplicantModalProps> = ({
           <Select mode="multiple" placeholder="Select laboral experiences">
             {laboralExperiences.map((experience) => (
               <Select.Option key={experience.id} value={experience.id}>
-                {experience.position}
+                {experience.position} - {experience.company} -
+                {formatDate(experience.startDate)} -
+                {formatDate(experience.endDate)}
               </Select.Option>
             ))}
           </Select>
@@ -127,7 +130,9 @@ export const PositionModal: React.FC<ApplicantModalProps> = ({
           <Select mode="multiple" placeholder="Select educations">
             {educations.map((education) => (
               <Select.Option key={education.id} value={education.id}>
-                {education.description}
+                {education.description} - {education.institution} -{" "}
+                {formatDate(education.startDate)} -
+                {formatDate(education.endDate)}
               </Select.Option>
             ))}
           </Select>
