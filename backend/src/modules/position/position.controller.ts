@@ -38,7 +38,7 @@ export class PositionController {
   }
 
   @Get('available')
-  @Auth([])
+  @Auth([RoleType.ADMIN, RoleType.USER])
   @HttpCode(HttpStatus.OK)
   getAllEnabledPosition(@Query() positionPageOptionsDto: PositionPageOptionsDto): Promise<PageDto<PositionDto>> {
     return this.positionService.getAllAvailablePosition(positionPageOptionsDto);
