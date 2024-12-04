@@ -9,6 +9,8 @@ import { LaboralExperienceModal } from "./components/LaboralExperienceModal";
 import { Skill, Position, LaboralExperience, Education } from "./common/types";
 import { fetchSkills } from "./common/fetchSkills";
 import { fetchEducation } from "./common/fetchEducation";
+import { saveEducation } from "./common/saveEducation";
+import { saveLaboralExperience } from "./common/saveLaboralExperience";
 import { fetchLaboralExperiences } from "./common/fetchLaboralExperiences";
 import {
   PaginationMeta,
@@ -126,14 +128,33 @@ export const Home = () => {
     setIsEducationModalVisible(false);
   };
 
-  const handleLaboralExperienceSubmit = (values: any) => {
+  const handleLaboralExperienceSubmit = async (values: any) => {
     console.log("New Laboral Experience:", values);
-    setIsLaboralExperienceModalVisible(false);
+
+    try {
+      const response = await saveLaboralExperience(values);
+      console.log("Laboral Experience created successfully:", response);
+      handleCloseLaboralExperienceModal();
+    } catch (error) {
+      console.error("Error creating laboral experience:", error);
+    } finally {
+      setIsLaboralExperienceModalVisible(false);
+      handleRefresh();
+    }
   };
 
-  const handleEducationSubmit = (values: any) => {
+  const handleEducationSubmit = async (values: any) => {
     console.log("New Education:", values);
-    setIsEducationModalVisible(false);
+    try {
+      const response = await saveEducation(values);
+      console.log("Education created successfully:", response);
+      handleCloseEducationModal();
+    } catch (error) {
+      console.error("Error creating Education:", error);
+    } finally {
+      setIsEducationModalVisible(false);
+      handleRefresh();
+    }
   };
 
   const handleSubmit = (values: any) => {
