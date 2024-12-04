@@ -2,6 +2,8 @@ import type { AuthProvider, OnErrorResponse } from "@refinedev/core";
 
 export const TOKEN_KEY = "refine-auth";
 
+export const USER_ID_KEY = "user-id";
+
 export const authProvider: AuthProvider = {
   login: async ({ email, password }) => {
     const request = new Request("http://localhost:3000/auth/login", {
@@ -13,7 +15,8 @@ export const authProvider: AuthProvider = {
     const response = await fetch(request);
 
     if (response.ok) {
-      const { token } = await response.json();
+      const { token, user } = await response.json();
+      localStorage.setItem(USER_ID_KEY, user.id);
       localStorage.setItem(TOKEN_KEY, token.accessToken);
       return { success: true, redirectTo: "/home" };
     }
@@ -67,6 +70,7 @@ export const authProvider: AuthProvider = {
 
   logout: async () => {
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_ID_KEY);
     const sleep = (ms: number) =>
       new Promise((resolve) => setTimeout(resolve, ms));
 

@@ -1,11 +1,11 @@
-import { Layout, Modal, Button, Form, Input, Typography } from "antd";
+import { Layout } from "antd";
 import { useEffect, useState, useRef } from "react";
 import { ColorModeContextProvider } from "../../contexts/color-mode";
 import { PositionsList } from "./components/PositionList";
 import { HeaderSection } from "./components/HeaderSection";
 import { PositionModal } from "./components/PositionModal";
+import { Skill, Position, LaboralExperience, Education } from "./common/types";
 import {
-  Position,
   PaginationMeta,
   fetchAvailablePositions,
 } from "./common/fetchPositions";
@@ -24,6 +24,12 @@ export const Home = () => {
     null
   );
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+
+  const [skills, setSkills] = useState<Skill[]>([]);
+  const [educations, setEducations] = useState<Education[]>([]);
+  const [laboralExperiences, setLaboralExperiences] = useState<
+    LaboralExperience[]
+  >([]);
 
   const contentRef = useRef<HTMLDivElement | null>(null);
 
@@ -115,7 +121,10 @@ export const Home = () => {
           onClose={handleCloseModal}
           onSubmit={handleSubmit}
           position={selectedPosition}
+          skills={skills}
           loading={loading}
+          educations={educations}
+          laboralExperiences={laboralExperiences}
         />
       </Layout>
     </ColorModeContextProvider>

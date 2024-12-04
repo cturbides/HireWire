@@ -1,83 +1,139 @@
 import React from "react";
-import { Modal, Form, Input, Button } from "antd";
-import { Position } from "../common/fetchPositions";
+import { Modal, Form, Input, Button, Select, Typography, Divider } from "antd";
+import { Skill, Position, LaboralExperience, Education } from "../common/types";
 
-interface PositionModalProps {
+interface ApplicantModalProps {
   visible: boolean;
-  onClose: () => void;
   loading: boolean;
+  onClose: () => void;
+  skills: Array<Skill>;
   position: Position | null;
+  educations: Array<Education>;
   onSubmit: (values: any) => void;
+  laboralExperiences: Array<LaboralExperience>;
 }
 
-export const PositionModal: React.FC<PositionModalProps> = ({
+const { Title, Paragraph } = Typography;
+
+export const PositionModal: React.FC<ApplicantModalProps> = ({
+  skills,
   visible,
   onClose,
-  onSubmit,
-  position,
   loading,
+  position,
+  onSubmit,
+  educations,
+  laboralExperiences,
 }) => {
   const [form] = Form.useForm();
 
   React.useEffect(() => {
     if (position) {
-      form.setFieldsValue(position);
-    } else {
       form.resetFields();
     }
   }, [position, form]);
 
   return (
-    <Modal
-      title={`Edit Position: ${position?.name || "New Position"}`}
-      visible={visible}
-      onCancel={onClose}
-      footer={null}
-    >
+    <Modal visible={visible} onCancel={onClose} footer={null} width={800}>
+      {position && (
+        <>
+          <Title level={4}>{position.name}</Title>
+          <Paragraph>
+            Salary Range: {position.minSalary} - {position.maxSalary}
+          </Paragraph>
+          <Paragraph>
+            Risk Level: {position.riskLevel} |{" "}
+            {position.available ? "Available" : "Not Available"}
+          </Paragraph>
+          <Paragraph>Descripción: {position.description}</Paragraph>
+          <Divider />
+        </>
+      )}
+
       <Form
         form={form}
         layout="vertical"
-        onFinish={onSubmit}
-        initialValues={position || {}}
+        onFinish={(values) =>
+          onSubmit({
+            ...values,
+            positionId: position?.id,
+          })
+        }
       >
+        {/* Desired Salary */}
         <Form.Item
-          label="Name"
-          name="name"
-          rules={[{ required: true, message: "Please enter the name" }]}
-        >
-          <Input placeholder="Position Name" />
-        </Form.Item>
-        <Form.Item
-          label="Min Salary"
-          name="minSalary"
+          label="Desired Salary"
+          name="desiredSalary"
           rules={[
-            { required: true, message: "Please enter the minimum salary" },
+            { required: true, message: "Please enter the desired salary" },
           ]}
         >
-          <Input type="number" placeholder="Min Salary" />
+          <Input type="number" placeholder="Enter desired salary" />
         </Form.Item>
+
+        {/* Recommended By */}
         <Form.Item
-          label="Max Salary"
-          name="maxSalary"
+          label="Recommended By"
+          name="recommendedBy"
           rules={[
-            { required: true, message: "Please enter the maximum salary" },
+            { required: true, message: "Please specify who recommended" },
           ]}
         >
-          <Input type="number" placeholder="Max Salary" />
+          <Input placeholder="Enter recommender's name" />
         </Form.Item>
+
+        {/* Skills */}
         <Form.Item
-          label="Risk Level"
-          name="riskLevel"
-          rules={[{ required: true, message: "Please select a risk level" }]}
+          label="Skills"
+          name="skillIds"
+          rules={[
+            { required: true, message: "Please select at least one skill" },
+          ]}
         >
-          <Input placeholder="Risk Level (LOW, MEDIUM, HIGH)" />
+          <Select mode="multiple" placeholder="Select skills">
+            {skills.map((skill) => (
+              <Select.Option key={skill.id} value={skill.id}>
+                {skill.description}
+              </Select.Option>
+            ))}
+          </Select>
         </Form.Item>
-        <Form.Item label="Description" name="description">
-          <Input.TextArea rows={4} placeholder="Description" />
+
+        {/* Laboral Experiences */}
+        <Form.Item
+          label="Laboral Experiences"
+          name="laboralExperienceIds"
+          rules={[
+            { required: true, message: "Please select laboral experiences" },
+          ]}
+        >
+          <Select mode="multiple" placeholder="Select laboral experiences">
+            {laboralExperiences.map((experience) => (
+              <Select.Option key={experience.id} value={experience.id}>
+                {experience.position}
+              </Select.Option>
+            ))}
+          </Select>
         </Form.Item>
+
+        {/* Educations */}
+        <Form.Item
+          label="Educations"
+          name="educationIds"
+          rules={[{ required: true, message: "Please select educations" }]}
+        >
+          <Select mode="multiple" placeholder="Select educations">
+            {educations.map((education) => (
+              <Select.Option key={education.id} value={education.id}>
+                {education.description}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+
         <Form.Item>
           <Button type="primary" htmlType="submit" block loading={loading}>
-            Save
+            Submit Application
           </Button>
         </Form.Item>
       </Form>
