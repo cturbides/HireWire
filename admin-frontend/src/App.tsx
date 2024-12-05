@@ -36,6 +36,7 @@ import {
   LaboralExperienceEdit,
   LaboralExperienceList,
 } from "./resources/laboral-experience";
+import EmployeeReport from "./resources/employee-report/EmployeeReport";
 import FlexibleApplicantFilter from "./resources/flexible-search/FlexibleApplicantFilter";
 
 export const App = (props) => (
@@ -102,6 +103,7 @@ export const App = (props) => (
     />
 
     <CustomRoutes>
+      <Route path="/employee/report" element={<EmployeeReport />} />
       <Route path="/applicants/filter" element={<FlexibleApplicantFilter />} />
     </CustomRoutes>
   </Admin>

@@ -15,6 +15,7 @@ import { ApiTags } from '@nestjs/swagger';
 import type { PageDto } from '../../common/dto/page.dto';
 import { Auth, AuthUser, UUIDParam } from '../../decorators';
 import { CreateApplicantDto } from './dtos/create-applicant.dto';
+import { CreateEmployeeByApplicantDto } from './dtos/create-employee-by-applicant.dto';
 import type { ApplicantDto } from './dtos/applicant.dto';
 import { ApplicantPageOptionsDto } from './dtos/applicant-page-options.dto';
 import { UpdateApplicantDto } from './dtos/update-applicant.dto';
@@ -42,6 +43,19 @@ export class ApplicantController {
     );
 
     return entity.toDto();
+  }
+
+  @Post('employee')
+  @Auth([RoleType.ADMIN])
+  @HttpCode(HttpStatus.CREATED)
+  async createEmployeeByApplicant(
+    @Body() createEmployeeByApplicantDto: CreateEmployeeByApplicantDto,
+    @AuthUser() user: UserDto,
+  ) {
+    return this.applicantService.createEmployeeByApplicant(
+      user,
+      createEmployeeByApplicantDto,
+    );
   }
 
   @Get('available')

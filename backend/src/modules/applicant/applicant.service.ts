@@ -4,6 +4,7 @@ import { Transactional } from 'typeorm-transactional';
 import { Order } from '../../constants';
 
 import type { PageDto } from '../../common/dto/page.dto';
+import { CreateEmployeeByApplicantDto } from './dtos/create-employee-by-applicant.dto';
 import { CreateApplicantCommand } from './commands/create-applicant.command';
 import type { ApplicantDto } from './dtos/applicant.dto';
 import type { ApplicantPageOptionsDto } from './dtos/applicant-page-options.dto';
@@ -28,6 +29,8 @@ import { InvalidUserIdException } from './exceptions/invalid-user-id.exception';
 import { SkillEntity } from '../skill/skill.entity';
 import { LaboralExperienceEntity } from '../laboral-experience/laboral-experience.entity';
 import { EducationEntity } from '../education/education.entity';
+import { EmployeeEntity } from '../employee/employee.entity';
+import type { UpdatePositionDto } from '../position/dtos/update-position.dto';
 
 @Injectable()
 export class ApplicantService {
@@ -39,6 +42,8 @@ export class ApplicantService {
     private positionService: PositionService,
     @InjectRepository(ApplicantEntity)
     private applicantRepository: Repository<ApplicantEntity>,
+    @InjectRepository(EmployeeEntity)
+    private employeeRepository: Repository<EmployeeEntity>,
     @InjectRepository(SkillEntity)
     private skillRepository: Repository<SkillEntity>,
     @InjectRepository(LaboralExperienceEntity)
@@ -145,6 +150,74 @@ export class ApplicantService {
     this.logger.log(`Applicant ---> ${JSON.stringify(applicant)}`);
 
     return applicant;
+  }
+
+  @Transactional()
+  async createEmployeeByApplicant(
+    user: UserDto,
+    createEmployeeByApplicantDto: CreateEmployeeByApplicantDto,
+  ): Promise<void> {
+    this.logger.log(
+      `Creating employee from applicant by user '${user.id}': ${JSON.stringify(createEmployeeByApplicantDto)}`,
+    );
+
+    const applicant = await this.applicantRepository.findOne({
+      where: { id: createEmployeeByApplicantDto.applicantId as Uuid },
+      relations: ['user', 'position'],
+    });
+
+    if (!applicant) {
+      this.logger.error(
+        `Applicant not found with id '${createEmployeeByApplicantDto.applicantId}'`,
+      );
+
+      throw new Error('Applicant not found');
+    }
+
+    // Validar estado del applicant
+    if (!applicant.user.state) {
+      this.logger.error(
+        `Applicant's user with id '${applicant.user.id}' is disabled`,
+      );
+
+      throw new Error('Applicant is disabled');
+    }
+
+    if (!applicant.position.state) {
+      this.logger.error(
+        `Position with id '${applicant.position.id}' is disabled`,
+      );
+
+      throw new Error('Position is disabled');
+    }
+
+    if (!applicant.position.available) {
+      this.logger.error(
+        `Position with id '${applicant.position.id}' is not available`,
+      );
+
+      throw new Error('Position is not available');
+    }
+
+    const employee = await this.employeeRepository.save({
+      department: 'IT',
+      user: applicant.user,
+      position: applicant.position,
+      mensualSalary: applicant.desiredSalary,
+    });
+
+    this.logger.log(`Created employee: ${JSON.stringify(employee)}`);
+
+    applicant.state = false;
+    await this.applicantRepository.save(applicant);
+
+    await this.positionService.updatePosition(applicant.position.id, {
+      available: false,
+    } as unknown as UpdatePositionDto);
+
+    this.logger.log(
+      `Applicant with id '${applicant.id}' has been disabled after employee creation`,
+    );
   }
 
   async getAllEnabledApplicantByUserId(

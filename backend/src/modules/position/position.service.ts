@@ -10,11 +10,9 @@ import { PositionNotFoundException } from './exceptions/position-not-found.excep
 import { PositionEntity } from './position.entity';
 import { CreatePositionDto } from './dtos/create-position.dto';
 import type { UpdatePositionDto } from './dtos/update-position.dto';
-import { InjectRepository } from '@nestjs/typeorm'
+import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MinSalaryIsBiggerThanMaxSalaryException } from './exceptions/max-salary-is-bigger-than-min-salary.exception';
-import { EmployeeEntity } from '../employee/employee.entity';
-import { FoundEmployeeException } from './exceptions/found-employee.exception';
 
 @Injectable()
 export class PositionService {
@@ -22,12 +20,12 @@ export class PositionService {
     @InjectRepository(PositionEntity)
     private positionRepository: Repository<PositionEntity>,
     private commandBus: CommandBus,
-    @InjectRepository(EmployeeEntity)
-    private employeeRepository: Repository<EmployeeEntity>,
-  ) { }
+  ) {}
 
   @Transactional()
-  createPosition(createPositionDto: CreatePositionDto): Promise<PositionEntity> {
+  createPosition(
+    createPositionDto: CreatePositionDto,
+  ): Promise<PositionEntity> {
     if (createPositionDto.maxSalary < createPositionDto.minSalary) {
       throw new MinSalaryIsBiggerThanMaxSalaryException();
     }
@@ -37,15 +35,22 @@ export class PositionService {
     );
   }
 
-  async getAllAvailablePosition(positionPageOptionsDto: PositionPageOptionsDto): Promise<PageDto<PositionDto>> {
+  async getAllAvailablePosition(
+    positionPageOptionsDto: PositionPageOptionsDto,
+  ): Promise<PageDto<PositionDto>> {
     const queryBuilder = this.positionRepository
       .createQueryBuilder('position')
       .where('position.available = :available', { available: true })
       .andWhere('position.state = :state', { state: true });
 
-    queryBuilder.orderBy(`position.${positionPageOptionsDto.sort}`, positionPageOptionsDto.order);
+    queryBuilder.orderBy(
+      `position.${positionPageOptionsDto.sort}`,
+      positionPageOptionsDto.order,
+    );
 
-    const [items, pageMetaDto] = await queryBuilder.paginate(positionPageOptionsDto);
+    const [items, pageMetaDto] = await queryBuilder.paginate(
+      positionPageOptionsDto,
+    );
 
     return items.toPageDto(pageMetaDto);
   }
@@ -53,12 +58,16 @@ export class PositionService {
   async getAllPosition(
     positionPageOptionsDto: PositionPageOptionsDto,
   ): Promise<PageDto<PositionDto>> {
-    const queryBuilder = this.positionRepository
-      .createQueryBuilder('position');
+    const queryBuilder = this.positionRepository.createQueryBuilder('position');
 
-    queryBuilder.orderBy(`position.${positionPageOptionsDto.sort}`, positionPageOptionsDto.order);
+    queryBuilder.orderBy(
+      `position.${positionPageOptionsDto.sort}`,
+      positionPageOptionsDto.order,
+    );
 
-    const [items, pageMetaDto] = await queryBuilder.paginate(positionPageOptionsDto);
+    const [items, pageMetaDto] = await queryBuilder.paginate(
+      positionPageOptionsDto,
+    );
 
     return items.toPageDto(pageMetaDto);
   }
@@ -91,24 +100,18 @@ export class PositionService {
       throw new PositionNotFoundException();
     }
 
-    if (updatePositionDto.minSalary && updatePositionDto.minSalary > positionEntity.maxSalary) {
+    if (
+      updatePositionDto.minSalary &&
+      updatePositionDto.minSalary > positionEntity.maxSalary
+    ) {
       throw new MinSalaryIsBiggerThanMaxSalaryException();
     }
 
-    if (updatePositionDto.maxSalary && updatePositionDto.maxSalary < positionEntity.minSalary) {
+    if (
+      updatePositionDto.maxSalary &&
+      updatePositionDto.maxSalary < positionEntity.minSalary
+    ) {
       throw new MinSalaryIsBiggerThanMaxSalaryException();
-    }
-
-    const secondQueryBuilder = this.employeeRepository.createQueryBuilder('employee')
-      .leftJoinAndSelect('employee.user', 'user')
-      .leftJoinAndSelect('employee.position', 'position')
-      .where('employee.position.id = :positionId', { positionId: id })
-      .andWhere('employee.state IS TRUE');
-
-    const allEmployees = await secondQueryBuilder.getMany();
-
-    if (allEmployees.length) {
-      throw new FoundEmployeeException();
     }
 
     await this.positionRepository.save({
@@ -150,6 +153,6 @@ export class PositionService {
       id: positionEntity.id,
       state: false,
       available: true,
-    })
+    });
   }
 }
